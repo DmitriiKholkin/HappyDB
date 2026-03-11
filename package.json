@@ -1,0 +1,190 @@
+{
+  "name": "vscode-happy-db",
+  "displayName": "HappyDB",
+  "description": "Full-featured database manager for VSCode — PostgreSQL, MSSQL, MySql, SQLite",
+  "version": "0.1.0",
+  "publisher": "happydb",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:happydb.connectionsView"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "happy-db",
+          "title": "HappyDB",
+          "icon": "$(database)"
+        }
+      ]
+    },
+    "views": {
+      "happy-db": [
+        {
+          "id": "happydb.connectionsView",
+          "name": "Connections"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "happydb.addConnection",
+        "title": "HappyDB: Add Connection",
+        "icon": "$(add)"
+      },
+      {
+        "command": "happydb.editConnection",
+        "title": "HappyDB: Edit Connection",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "happydb.deleteConnection",
+        "title": "HappyDB: Delete Connection",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "happydb.connect",
+        "title": "HappyDB: Connect",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "happydb.disconnect",
+        "title": "HappyDB: Disconnect",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "happydb.refreshConnection",
+        "title": "HappyDB: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "happydb.newQuery",
+        "title": "HappyDB: New SQL Query",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "happydb.openStructure",
+        "title": "HappyDB: Open Table Structure",
+        "icon": "$(layout)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "happydb.addConnection",
+          "when": "view == happydb.connectionsView",
+          "group": "navigation"
+        },
+        {
+          "command": "happydb.refreshConnection",
+          "when": "view == happydb.connectionsView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "happydb.connect",
+          "when": "view == happydb.connectionsView && viewItem == connection-disconnected",
+          "group": "inline"
+        },
+        {
+          "command": "happydb.disconnect",
+          "when": "view == happydb.connectionsView && viewItem == connection-connected",
+          "group": "inline"
+        },
+        {
+          "command": "happydb.editConnection",
+          "when": "view == happydb.connectionsView && viewItem =~ /^connection/",
+          "group": "1_connection@1"
+        },
+        {
+          "command": "happydb.deleteConnection",
+          "when": "view == happydb.connectionsView && viewItem =~ /^connection/",
+          "group": "1_connection@2"
+        },
+        {
+          "command": "happydb.newQuery",
+          "when": "view == happydb.connectionsView && viewItem =~ /^connection/",
+          "group": "2_actions@1"
+        },
+        {
+          "command": "happydb.openTable",
+          "when": "view == happydb.connectionsView && viewItem == table",
+          "group": "inline"
+        },
+        {
+          "command": "happydb.openTable",
+          "when": "view == happydb.connectionsView && viewItem == view",
+          "group": "inline"
+        },
+        {
+          "command": "happydb.openStructure",
+          "when": "view == happydb.connectionsView && viewItem == table",
+          "group": "inline"
+        },
+        {
+          "command": "happydb.refreshConnection",
+          "when": "view == happydb.connectionsView && viewItem =~ /^connection/",
+          "group": "3_refresh@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "HappyDB",
+      "properties": {
+        "happydb.connections": {
+          "type": "array",
+          "default": [],
+          "description": "List of database connections"
+        },
+        "happydb.pageSize": {
+          "type": "number",
+          "default": 100,
+          "description": "Number of rows per page in data grid"
+        },
+        "happydb.queryHistoryLimit": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of queries to keep in history"
+        },
+        "happydb.autoRefresh": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically refresh connection tree after changes"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js && cd webview && npm run build",
+    "build:ext": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "build:webview": "cd webview && npm run build",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/mssql": "^9.1.9",
+    "@types/node": "^20.17.0",
+    "@types/pg": "^8.18.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "mssql": "^10.0.4",
+    "mysql2": "^3.19.1",
+    "pg": "^8.13.1",
+    "uuid": "^11.0.2"
+  }
+}
