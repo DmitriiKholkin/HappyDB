@@ -13,7 +13,7 @@ async function main() {
     sourcesContent: false,
     platform: "node",
     outfile: "dist/extension.js",
-    external: ["vscode", "pg", "pg-native", "mssql", "better-sqlite3"],
+    external: ["vscode", "better-sqlite3"],
     logLevel: "info",
     mainFields: ["module", "main"],
   });
