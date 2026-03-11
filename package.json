@@ -3,7 +3,7 @@
   "displayName": "HappyDB",
   "description": "Full-featured database manager for VSCode — PostgreSQL, MSSQL, MySql, SQLite",
   "version": "0.1.0",
-  "publisher": "happydb",
+  "publisher": "kholkindmitrii",
   "engines": {
     "vscode": "^1.85.0"
   },
