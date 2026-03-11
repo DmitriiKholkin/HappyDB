@@ -1,0 +1,9 @@
+.gitignore
+.vscode
+biome.json
+esbuild.js
+tsconfig.json
+src/
+webview/
+node_modules/
+*.vsix

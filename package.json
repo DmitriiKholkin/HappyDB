@@ -1,9 +1,14 @@
 {
   "name": "vscode-happy-db",
   "displayName": "HappyDB",
-  "description": "Full-featured database manager for VSCode — PostgreSQL, MSSQL, MySql, SQLite",
+  "description": "Full-featured database manager right inside VS Code",
   "version": "0.1.0",
   "publisher": "kholkindmitrii",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KholkinDmitrii/HappyDB"
+  },
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -153,10 +158,11 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
-    "build": "node esbuild.js && cd webview && npm run build",
+    "build": "node esbuild.js --production && cd webview && npm run build",
+    "build:dev": "node esbuild.js && cd webview && npm run build",
     "build:ext": "node esbuild.js --production",
-    "watch": "node esbuild.js --watch",
     "build:webview": "cd webview && npm run build",
+    "watch": "node esbuild.js --watch",
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
