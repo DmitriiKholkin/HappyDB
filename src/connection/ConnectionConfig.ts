@@ -8,6 +8,7 @@ export interface BaseConnectionConfig {
   id: string;
   name: string;
   type: DbType;
+  password?: string;
   color?: string;
 }
 

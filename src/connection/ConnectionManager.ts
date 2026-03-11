@@ -15,7 +15,7 @@ export class ConnectionManager {
   private _onDidChange = new vscode.EventEmitter<void>();
   readonly onDidChange = this._onDidChange.event;
 
-  constructor(private secretStorage: vscode.SecretStorage) {}
+  constructor() {}
 
   // ---- Connection config CRUD ----
 
@@ -31,13 +31,14 @@ export class ConnectionManager {
     if (!conn.id) {
       conn.id = uuidv4();
     }
+
+    if (password !== undefined) {
+      conn.password = password;
+    }
+
     const connections = this.getConnections();
     connections.push(conn);
     await this.saveConnections(connections);
-
-    if (password) {
-      await this.setPassword(conn.id, password);
-    }
 
     this._onDidChange.fire();
   }
@@ -51,12 +52,16 @@ export class ConnectionManager {
     if (index === -1) {
       throw new Error(`Connection ${conn.id} not found`);
     }
-    connections[index] = conn;
-    await this.saveConnections(connections);
 
     if (password !== undefined) {
-      await this.setPassword(conn.id, password);
+      conn.password = password;
+    } else {
+      // Keep old password if not provided
+      conn.password = connections[index].password;
     }
+
+    connections[index] = conn;
+    await this.saveConnections(connections);
 
     // If connected, disconnect the old adapter
     if (this.adapters.has(conn.id)) {
@@ -75,9 +80,6 @@ export class ConnectionManager {
     const connections = this.getConnections().filter((c) => c.id !== id);
     await this.saveConnections(connections);
 
-    // Remove password
-    await this.secretStorage.delete(`happydb.password.${id}`);
-
     this._onDidChange.fire();
   }
 
@@ -95,16 +97,18 @@ export class ConnectionManager {
   // ---- Password management ----
 
   async getPassword(connectionId: string): Promise<string> {
-    return (
-      (await this.secretStorage.get(`happydb.password.${connectionId}`)) || ""
-    );
+    const connections = this.getConnections();
+    const conn = connections.find((c) => c.id === connectionId);
+    return conn?.password || "";
   }
 
   async setPassword(connectionId: string, password: string): Promise<void> {
-    await this.secretStorage.store(
-      `happydb.password.${connectionId}`,
-      password,
-    );
+    const connections = this.getConnections();
+    const index = connections.findIndex((c) => c.id === connectionId);
+    if (index !== -1) {
+      connections[index].password = password;
+      await this.saveConnections(connections);
+    }
   }
 
   // ---- Adapter management ----
@@ -184,10 +188,10 @@ export class ConnectionManager {
 
   exportConnections(): string {
     const connections = this.getConnections();
-    // Don't export passwords
+    // Now we DO export passwords as per user request (stored in settings)
     return JSON.stringify(connections, null, 2);
   }
-
+  
   async importConnections(json: string): Promise<number> {
     const imported = JSON.parse(json) as ConnectionConfig[];
     const existing = this.getConnections();

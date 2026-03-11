@@ -114,16 +114,6 @@
           "group": "2_actions@1"
         },
         {
-          "command": "happydb.openTable",
-          "when": "view == happydb.connectionsView && viewItem == table",
-          "group": "inline"
-        },
-        {
-          "command": "happydb.openTable",
-          "when": "view == happydb.connectionsView && viewItem == view",
-          "group": "inline"
-        },
-        {
           "command": "happydb.openStructure",
           "when": "view == happydb.connectionsView && viewItem == table",
           "group": "inline"
@@ -167,8 +157,7 @@
     "build:ext": "node esbuild.js --production",
     "watch": "node esbuild.js --watch",
     "build:webview": "cd webview && npm run build",
-    "lint": "tsc --noEmit",
-    "test": "vitest run"
+    "lint": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
@@ -177,8 +166,7 @@
     "@types/pg": "^8.18.0",
     "@types/vscode": "^1.85.0",
     "esbuild": "^0.24.0",
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.4"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "better-sqlite3": "^11.5.0",

@@ -10,6 +10,7 @@ export interface ConnectionConfig {
   port?: number;
   database?: string;
   username?: string;
+  password?: string;
   ssl?: boolean;
   encrypt?: boolean;
   trustServerCertificate?: boolean;

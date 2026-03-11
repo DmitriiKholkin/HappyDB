@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext): void {
   console.log("[HappyDB] Activating extension...");
 
   // Initialize ConnectionManager with SecretStorage
-  const connectionManager = new ConnectionManager(context.secrets);
+  const connectionManager = new ConnectionManager();
 
   // Initialize TreeView provider
   const treeProvider = new ConnectionTreeProvider(connectionManager);

@@ -30,7 +30,7 @@ export const ConnectionForm: React.FC = () => {
   );
   const [database, setDatabase] = useState(editingConn?.database || "");
   const [username, setUsername] = useState(editingConn?.username || "");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(editingConn?.password || "");
   const [ssl, setSsl] = useState(editingConn?.ssl || false);
   const [filePath, setFilePath] = useState(editingConn?.filePath || "");
   const [color, setColor] = useState(editingConn?.color || "#336791");
@@ -83,6 +83,7 @@ export const ConnectionForm: React.FC = () => {
       port,
       database,
       username,
+      password: password || undefined,
       ssl,
     };
   }, [
@@ -94,6 +95,7 @@ export const ConnectionForm: React.FC = () => {
     port,
     database,
     username,
+    password,
     ssl,
     filePath,
   ]);
