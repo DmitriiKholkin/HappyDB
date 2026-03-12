@@ -4,11 +4,10 @@
 
 **Full-featured database manager right inside VS Code**
 
-[![Version](https://img.shields.io/badge/version-0.1.2-blue?style=flat-square)](https://github.com/DmitriiKholkin/HappyDB)
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/DmitriiKholkin.happy-db?style=flat-square&label=VS%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-007ACC?style=flat-square&logo=visualstudiocode)](https://code.visualstudio.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-Elastic%20v2-orange?style=flat-square)](LICENSE)
-[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/DmitriiKholkin.happy-db?style=flat-square&label=VS%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db)
 
 <br/>
 

@@ -161,4 +161,38 @@ export function registerCommands(
       },
     ),
   );
+ 
+  // Show View Code
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "happydb.showViewCode",
+      async (item: DbTreeItem) => {
+        const adapter = connectionManager.getAdapter(item.data.connectionId);
+        if (!adapter) {
+          vscode.window.showErrorMessage("Not connected to database");
+          return;
+        }
+
+        try {
+          await vscode.window.withProgress(
+            {
+              location: vscode.ProgressLocation.Notification,
+              title: `Loading code for ${item.label}...`,
+            },
+            async () => {
+              const ddl = await adapter.getTableDdl(
+                item.data.schema || "public",
+                item.data.name || (item.label as string),
+              );
+              editorProvider.openQueryEditor(item.data.connectionId, ddl);
+            },
+          );
+        } catch (err) {
+          vscode.window.showErrorMessage(
+            `Failed to load code: ${(err as Error).message}`,
+          );
+        }
+      },
+    ),
+  );
 }

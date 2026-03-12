@@ -2,7 +2,7 @@
   "name": "happy-db",
   "displayName": "HappyDB",
   "description": "Full-featured database manager right inside VS Code",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "DmitriiKholkin",
   "repository": {
     "type": "git",
@@ -77,6 +77,11 @@
         "command": "happydb.openStructure",
         "title": "HappyDB: Open Table Structure",
         "icon": "$(layout)"
+      },
+      {
+        "command": "happydb.showViewCode",
+        "title": "HappyDB: Show View Code",
+        "icon": "$(code)"
       }
     ],
     "menus": {
@@ -103,6 +108,10 @@
         },
         {
           "command": "happydb.newQuery",
+          "when": "false"
+        },
+        {
+          "command": "happydb.showViewCode",
           "when": "false"
         }
       ],
@@ -147,6 +156,11 @@
         {
           "command": "happydb.openStructure",
           "when": "view == happydb.connectionsView && viewItem == table",
+          "group": "inline"
+        },
+        {
+          "command": "happydb.showViewCode",
+          "when": "view == happydb.connectionsView && viewItem == view",
           "group": "inline"
         },
         {

@@ -440,6 +440,22 @@ export class PostgresAdapter implements IDbAdapter {
   }
 
   async getTableDdl(schema: string, table: string): Promise<string> {
+    const pool = this.getPool();
+    const typeResult = await pool.query(
+      "SELECT table_type FROM information_schema.tables WHERE table_schema = $1 AND table_name = $2",
+      [schema, table],
+    );
+
+    if (typeResult.rows.length > 0 && typeResult.rows[0].table_type === "VIEW") {
+      const viewDefResult = await pool.query(
+        "SELECT pg_get_viewdef($1::regclass, true) as def",
+        [`"${schema}"."${table}"`],
+      );
+      if (viewDefResult.rows.length > 0) {
+        return `CREATE VIEW "${schema}"."${table}" AS\n${viewDefResult.rows[0].def}`;
+      }
+    }
+
     const columns = await this.getColumns(schema, table);
     const indexes = await this.getIndexes(schema, table);
     const fks = await this.getForeignKeys(schema, table);

@@ -438,7 +438,8 @@ export class MysqlAdapter implements IDbAdapter {
         `SHOW CREATE TABLE \`${schema}\`.\`${table}\``,
       );
       if (Array.isArray(result) && result.length > 0) {
-        return (result[0] as any)["Create Table"] + ";";
+        const row = result[0] as any;
+        return (row["Create Table"] || row["Create View"]) + ";";
       }
     } catch (e) {
       console.warn(

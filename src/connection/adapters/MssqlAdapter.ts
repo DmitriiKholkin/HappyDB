@@ -464,6 +464,23 @@ export class MssqlAdapter implements IDbAdapter {
   }
 
   async getTableDdl(schema: string, table: string): Promise<string> {
+    const pool = this.getPool();
+    const typeResult = await pool.request()
+      .input("schema", sql.NVarChar, schema)
+      .input("table", sql.NVarChar, table)
+      .query("SELECT TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = @schema AND TABLE_NAME = @table");
+
+    if (typeResult.recordset.length > 0 && typeResult.recordset[0].TABLE_TYPE === "VIEW") {
+      const viewDefResult = await pool.request()
+        .input("schema", sql.NVarChar, schema)
+        .input("table", sql.NVarChar, table)
+        .query("SELECT OBJECT_DEFINITION(OBJECT_ID(@schema + '.' + @table)) as def");
+      
+      if (viewDefResult.recordset.length > 0 && viewDefResult.recordset[0].def) {
+        return viewDefResult.recordset[0].def;
+      }
+    }
+
     const columns = await this.getColumns(schema, table);
     const indexes = await this.getIndexes(schema, table);
     const fks = await this.getForeignKeys(schema, table);
