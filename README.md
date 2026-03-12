@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🗄️ HappyDB
+# <img src="icon.png" style="height: 1em; vertical-align: middle;"/> HappyDB
 
 **Full-featured database manager right inside VS Code**
 
