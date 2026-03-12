@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const setEditingConnectionId = useDbStore((s) => s.setEditingConnectionId);
   const setConnections = useDbStore((s) => s.setConnections);
   const statusMessage = useDbStore((s) => s.statusMessage);
+  const isStatusError = useDbStore((s) => s.isStatusError);
 
   useEffect(() => {
     const unsubscribe = onMessage((msg: unknown) => {
@@ -70,7 +71,7 @@ const App: React.FC = () => {
         {activeView === "tableStructure" && <TableStructure />}
       </div>
       {statusMessage && (
-        <div className="status-bar">
+        <div className={`status-bar ${isStatusError ? "error" : ""}`}>
           <span>{statusMessage}</span>
         </div>
       )}

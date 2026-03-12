@@ -416,6 +416,11 @@ textarea::placeholder {
   flex-shrink: 0;
 }
 
+.status-bar.error {
+  background: var(--danger-color);
+  color: #fff;
+}
+
 /* ===== Welcome ===== */
 
 .welcome {

@@ -1,6 +1,7 @@
-import React, { useEffect, useCallback, useState, useRef } from "react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useVscodeApi } from "../../hooks/useVscodeApi";
-import { useDbStore, ColumnInfo } from "../../store/useDbStore";
+import { type ColumnInfo, useDbStore } from "../../store/useDbStore";
 import { CellEditor } from "./CellEditor";
 import { FilterRow } from "./FilterRow";
 
@@ -111,7 +112,7 @@ export const DataGrid: React.FC = () => {
       }
       if (message.type === "error") {
         setTableState({ loading: false });
-        setStatusMessage(message.message || "Error loading data");
+        setStatusMessage(message.message || "Error loading data", true);
       }
     });
   }, [onMessage, setTableState, setStatusMessage]);
@@ -277,15 +278,19 @@ export const DataGrid: React.FC = () => {
     );
     setTimeout(() => {
       fetchData(tableState.page);
-      setStatusMessage(null);
-    }, 500);
+      // Only clear if it's NOT an error (this handles cases where fetchData might have set an error)
+      const currentStore = useDbStore.getState();
+      if (!currentStore.isStatusError) {
+        setStatusMessage(null);
+      }
+    }, 2000); // Increased timeout for success message to be readable
   };
 
   const handleRevert = () => {
     setPendingChanges([]);
     setNewRows([]);
     setStatusMessage("Changes reverted.");
-    setTimeout(() => setStatusMessage(null), 2000);
+    setTimeout(() => setStatusMessage(null), 3000);
   };
 
   // --- Add/Delete rows ---
@@ -471,7 +476,10 @@ export const DataGrid: React.FC = () => {
         <div className="toolbar-separator" />
         <button
           className="btn btn-icon"
-          onClick={() => fetchData(tableState.page)}
+          onClick={() => {
+            setStatusMessage(null);
+            fetchData(tableState.page);
+          }}
           title="Refresh"
         >
           🔄

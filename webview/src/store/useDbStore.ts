@@ -113,7 +113,8 @@ interface DbStore {
 
   // Status messages
   statusMessage: string | null;
-  setStatusMessage: (msg: string | null) => void;
+  isStatusError: boolean;
+  setStatusMessage: (msg: string | null, isError?: boolean) => void;
 }
 
 export const useDbStore = create<DbStore>((set) => ({
@@ -171,5 +172,7 @@ export const useDbStore = create<DbStore>((set) => ({
 
   // Status
   statusMessage: null,
-  setStatusMessage: (msg) => set({ statusMessage: msg }),
+  isStatusError: false,
+  setStatusMessage: (msg, isError = false) =>
+    set({ statusMessage: msg, isStatusError: isError }),
 }));

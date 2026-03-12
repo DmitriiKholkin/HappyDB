@@ -46,7 +46,7 @@ export const CellEditor: React.FC<CellEditorProps> = ({
             return;
           }
           const num = Number(v);
-          onSave(isNaN(num) ? v : num);
+          onSave(Number.isNaN(num) ? v : num);
         }}
         onCancel={onCancel}
       />
@@ -103,6 +103,7 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
   );
   const [isNull, setIsNull] = useState(value === null || value === undefined);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -124,8 +125,24 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
     }
   };
 
+  const handleBlur = (e: React.FocusEvent) => {
+    // If the new focus target is inside our container, don't save yet
+    if (
+      e.relatedTarget &&
+      containerRef.current?.contains(e.relatedTarget as Node)
+    ) {
+      return;
+    }
+    onSave(isNull ? null : text);
+  };
+
   return (
-    <div className="cell-editor" onKeyDown={handleKeyDown}>
+    <div
+      className="cell-editor"
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      ref={containerRef}
+    >
       <input
         ref={inputRef}
         type={type}
@@ -134,7 +151,6 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
           setText(e.target.value);
           setIsNull(false);
         }}
-        onBlur={() => onSave(isNull ? null : text)}
         placeholder={placeholder || (isNull ? "NULL" : "")}
         disabled={isNull}
         className="cell-edit-input"
@@ -145,8 +161,9 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
             type="checkbox"
             checked={isNull}
             onChange={(e) => {
-              setIsNull(e.target.checked);
-              if (!e.target.checked) {
+              const checked = e.target.checked;
+              setIsNull(checked);
+              if (!checked) {
                 setTimeout(() => inputRef.current?.focus(), 0);
               }
             }}
@@ -180,12 +197,14 @@ const BooleanEditor: React.FC<BooleanEditorProps> = ({
   return (
     <div className="cell-editor bool-editor" onKeyDown={handleKeyDown}>
       <button
+        type="button"
         className={`bool-btn ${value === true ? "active" : ""}`}
         onClick={() => onSave(true)}
       >
         ✓ true
       </button>
       <button
+        type="button"
         className={`bool-btn ${value === false ? "active" : ""}`}
         onClick={() => onSave(false)}
       >
@@ -193,6 +212,7 @@ const BooleanEditor: React.FC<BooleanEditorProps> = ({
       </button>
       {nullable && (
         <button
+          type="button"
           className={`bool-btn ${value === null ? "active" : ""}`}
           onClick={() => onSave(null)}
         >
@@ -248,6 +268,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ value, onSave, onCancel }) => {
       />
       <div className="json-editor-actions">
         <button
+          type="button"
           className="btn btn-primary btn-sm"
           onClick={() => {
             try {
@@ -259,7 +280,11 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ value, onSave, onCancel }) => {
         >
           Save (Ctrl+Enter)
         </button>
-        <button className="btn btn-secondary btn-sm" onClick={onCancel}>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={onCancel}
+        >
           Cancel (Esc)
         </button>
       </div>
