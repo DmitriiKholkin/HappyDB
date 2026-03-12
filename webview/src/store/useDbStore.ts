@@ -15,7 +15,6 @@ export interface ConnectionConfig {
   encrypt?: boolean;
   trustServerCertificate?: boolean;
   filePath?: string;
-  color?: string;
 }
 
 export interface ColumnInfo {

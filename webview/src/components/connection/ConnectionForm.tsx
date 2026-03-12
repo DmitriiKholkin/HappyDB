@@ -33,7 +33,6 @@ export const ConnectionForm: React.FC = () => {
   const [password, setPassword] = useState(editingConn?.password || "");
   const [ssl, setSsl] = useState(editingConn?.ssl || false);
   const [filePath, setFilePath] = useState(editingConn?.filePath || "");
-  const [color, setColor] = useState(editingConn?.color || "#336791");
 
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [testing, setTesting] = useState(false);
@@ -76,7 +75,6 @@ export const ConnectionForm: React.FC = () => {
       setPassword(editingConn.password || "");
       setSsl(editingConn.ssl || false);
       setFilePath(editingConn.filePath || "");
-      setColor(editingConn.color || "#336791");
     }
   }, [editingConn]);
 
@@ -92,7 +90,6 @@ export const ConnectionForm: React.FC = () => {
       id: editingId || "",
       name: name || `${dbType} connection`,
       type: dbType,
-      color,
     };
 
     if (dbType === "sqlite") {
@@ -113,7 +110,6 @@ export const ConnectionForm: React.FC = () => {
     editingId,
     name,
     dbType,
-    color,
     host,
     port,
     database,
@@ -257,17 +253,6 @@ export const ConnectionForm: React.FC = () => {
           </div>
         </>
       )}
-
-      <div className="form-group" style={{ marginTop: 12 }}>
-        <label>Color tag</label>
-        <input
-          type="text"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          placeholder="#336791"
-          style={{ maxWidth: 120 }}
-        />
-      </div>
 
       {testResult && (
         <div

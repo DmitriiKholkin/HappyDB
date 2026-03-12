@@ -9,7 +9,6 @@ export interface BaseConnectionConfig {
   name: string;
   type: DbType;
   password?: string;
-  color?: string;
 }
 
 export interface PostgresConnectionConfig extends BaseConnectionConfig {
