@@ -124,7 +124,7 @@ This project is licensed under the **[Elastic License 2.0 (ELv2)](LICENSE)**.
 
 You are free to use, modify and distribute the source code for **non-commercial purposes**. Commercial use — including offering the software as a hosted/managed service — is not permitted without explicit written permission from the author.
 
-> See the full license text in the [`LICENSE`](LICENSE) file or at [elastic.co/licensing/elastic-license](https://www.elastic.co/licensing/elastic-license).
+> See the full license text in the [`LICENSE`](LICENSE.md) file or at [elastic.co/licensing/elastic-license](https://www.elastic.co/licensing/elastic-license).
 
 ---
 
