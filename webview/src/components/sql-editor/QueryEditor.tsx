@@ -327,7 +327,10 @@ export const QueryEditor: React.FC = () => {
       {/* SQL Input Area */}
       <div
         style={{
-          flex: `0 0 ${splitRatio * 100 - 10}%`,
+          flex:
+            queryState.columns.length === 0 && !queryState.error
+              ? "1 1 auto"
+              : `0 0 ${splitRatio * 100 - 10}%`,
           display: "flex",
           flexDirection: "column",
           minHeight: 100,

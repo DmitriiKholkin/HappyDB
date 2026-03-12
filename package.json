@@ -1,12 +1,12 @@
 {
-  "name": "vscode-happy-db",
+  "name": "happy-db",
   "displayName": "HappyDB",
   "description": "Full-featured database manager right inside VS Code",
   "version": "0.1.0",
-  "publisher": "dmitriikholkin",
+  "publisher": "DmitriiKholkin",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KholkinDmitrii/HappyDB"
+    "url": "https://github.com/DmitriiKholkin/HappyDB"
   },
   "icon": "icon.png",
   "engines": {
@@ -80,6 +80,32 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "happydb.editConnection",
+          "when": "false"
+        },
+        {
+          "command": "happydb.deleteConnection",
+          "when": "false"
+        },
+        {
+          "command": "happydb.connect",
+          "when": "false"
+        },
+        {
+          "command": "happydb.disconnect",
+          "when": "false"
+        },
+        {
+          "command": "happydb.openStructure",
+          "when": "false"
+        },
+        {
+          "command": "happydb.newQuery",
+          "when": "false"
+        }
+      ],
       "view/title": [
         {
           "command": "happydb.addConnection",
