@@ -113,6 +113,10 @@ export class DbEditorProvider {
     // Register simple ready handler
     messageBus.on("ready", async () => {
       this.sendToWebview(panel, initMessage);
+      
+      // Also send the initial list of connections
+      const connections = this.connectionManager.getConnections();
+      this.sendToWebview(panel, { type: "connectionsList", connections });
     });
 
     // Clean up

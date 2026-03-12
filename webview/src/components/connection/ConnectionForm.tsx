@@ -57,6 +57,29 @@ export const ConnectionForm: React.FC = () => {
     });
   }, [onMessage]);
 
+  // Sync state with editingConn when it loads
+  useEffect(() => {
+    if (editingConn) {
+      setDbType(editingConn.type);
+      setName(editingConn.name || "");
+      setHost(editingConn.host || "localhost");
+      setPort(
+        editingConn.port ||
+          (editingConn.type === "mssql"
+            ? 1433
+            : editingConn.type === "mysql"
+              ? 3306
+              : 5432),
+      );
+      setDatabase(editingConn.database || "");
+      setUsername(editingConn.username || "");
+      setPassword(editingConn.password || "");
+      setSsl(editingConn.ssl || false);
+      setFilePath(editingConn.filePath || "");
+      setColor(editingConn.color || "#336791");
+    }
+  }, [editingConn]);
+
   // Update default port when DB type changes
   useEffect(() => {
     if (!editingConn) {
