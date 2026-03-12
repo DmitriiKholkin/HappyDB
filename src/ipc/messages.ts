@@ -3,6 +3,8 @@ import type {
   ConnectionConfig,
   DbSchema,
   FilterOption,
+  ForeignKeyInfo,
+  IndexInfo,
   PkMap,
   RowChanges,
   SortOption,
@@ -95,6 +97,20 @@ export interface GetTableDdlMessage {
   table: string;
 }
 
+export interface GetTableIndexesMessage {
+  type: "getTableIndexes";
+  connectionId: string;
+  schema: string;
+  table: string;
+}
+
+export interface GetTableForeignKeysMessage {
+  type: "getTableForeignKeys";
+  connectionId: string;
+  schema: string;
+  table: string;
+}
+
 export type ExtensionMessage =
   | ConnectMessage
   | DisconnectMessage
@@ -108,7 +124,10 @@ export type ExtensionMessage =
   | DeleteConnectionMessage
   | TestConnectionMessage
   | GetConnectionsMessage
-  | GetTableDdlMessage;
+  | GetConnectionsMessage
+  | GetTableDdlMessage
+  | GetTableIndexesMessage
+  | GetTableForeignKeysMessage;
 
 // ---- Extension → Webview ----
 
@@ -161,6 +180,16 @@ export interface TableDdlMessage {
   ddl: string;
 }
 
+export interface TableIndexesMessage {
+  type: "tableIndexes";
+  indexes: IndexInfo[];
+}
+
+export interface TableForeignKeysMessage {
+  type: "tableForeignKeys";
+  foreignKeys: ForeignKeyInfo[];
+}
+
 export interface ErrorMessage {
   type: "error";
   message: string;
@@ -184,5 +213,7 @@ export type WebviewMessage =
   | ConnectionStatusMessage
   | TestConnectionResultMessage
   | TableDdlMessage
+  | TableIndexesMessage
+  | TableForeignKeysMessage
   | ErrorMessage
   | InitMessage;

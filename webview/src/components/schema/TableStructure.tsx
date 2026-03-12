@@ -49,6 +49,8 @@ export const TableStructure: React.FC = () => {
       pageSize: 1,
     });
     postMessage({ type: "getTableDdl", connectionId, schema, table });
+    postMessage({ type: "getTableIndexes", connectionId, schema, table });
+    postMessage({ type: "getTableForeignKeys", connectionId, schema, table });
   }, [connectionId, schema, table, postMessage]);
 
   // Listen for data
@@ -61,6 +63,12 @@ export const TableStructure: React.FC = () => {
       }
       if (message.type === "tableDdl" && message.ddl) {
         setDdl(message.ddl as string);
+      }
+      if (message.type === "tableIndexes" && message.indexes) {
+        setIndexes(message.indexes as IndexInfo[]);
+      }
+      if (message.type === "tableForeignKeys" && message.foreignKeys) {
+        setForeignKeys(message.foreignKeys as ForeignKeyInfo[]);
       }
     });
   }, [onMessage]);
@@ -75,8 +83,8 @@ export const TableStructure: React.FC = () => {
 
   const tabs: { key: StructureTab; label: string }[] = [
     { key: "columns", label: `Columns (${columns.length})` },
-    { key: "indexes", label: "Indexes" },
-    { key: "foreignKeys", label: "Foreign Keys" },
+    { key: "indexes", label: `Indexes (${indexes.length})` },
+    { key: "foreignKeys", label: `Foreign Keys (${foreignKeys.length})` },
     { key: "ddl", label: "DDL" },
   ];
 

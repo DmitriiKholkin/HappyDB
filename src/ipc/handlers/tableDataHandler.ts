@@ -1,19 +1,25 @@
-import { ConnectionManager } from "../../connection/ConnectionManager";
-import {
+import type { ConnectionManager } from "../../connection/ConnectionManager";
+import type {
   ExtensionMessage,
   WebviewMessage,
   FetchTableMessage,
   UpdateRowMessage,
   InsertRowMessage,
   DeleteRowMessage,
+  GetTableDdlMessage,
+  GetTableIndexesMessage,
+  GetTableForeignKeysMessage,
+  TableDdlMessage,
+  TableIndexesMessage,
+  TableForeignKeysMessage,
 } from "../messages";
 
 export function registerTableDataHandlers(
   connectionManager: ConnectionManager,
-): Map<string, (msg: ExtensionMessage) => Promise<WebviewMessage | void>> {
+): Map<string, (msg: ExtensionMessage) => Promise<WebviewMessage | undefined>> {
   const handlers = new Map<
     string,
-    (msg: ExtensionMessage) => Promise<WebviewMessage | void>
+    (msg: ExtensionMessage) => Promise<WebviewMessage | undefined>
   >();
 
   handlers.set("fetchTable", async (msg) => {
@@ -89,7 +95,7 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("getTableDdl", async (msg) => {
-    const { connectionId, schema, table } = msg as any; // Cast as any or GetTableDdlMessage
+    const { connectionId, schema, table } = msg as GetTableDdlMessage;
     const adapter = connectionManager.getAdapter(connectionId);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
@@ -97,7 +103,37 @@ export function registerTableDataHandlers(
 
     try {
       const ddl = await adapter.getTableDdl(schema, table);
-      return { type: "tableDdl", ddl: ddl } as any; // Cast back to bypass missing import for TableDdlMessage if strict
+      return { type: "tableDdl", ddl: ddl } as TableDdlMessage;
+    } catch (err) {
+      return { type: "error", message: (err as Error).message };
+    }
+  });
+
+  handlers.set("getTableIndexes", async (msg) => {
+    const { connectionId, schema, table } = msg as GetTableIndexesMessage;
+    const adapter = connectionManager.getAdapter(connectionId);
+    if (!adapter) {
+      return { type: "error", message: "Not connected to database" };
+    }
+
+    try {
+      const indexes = await adapter.getIndexes(schema, table);
+      return { type: "tableIndexes", indexes } as TableIndexesMessage;
+    } catch (err) {
+      return { type: "error", message: (err as Error).message };
+    }
+  });
+
+  handlers.set("getTableForeignKeys", async (msg) => {
+    const { connectionId, schema, table } = msg as GetTableForeignKeysMessage;
+    const adapter = connectionManager.getAdapter(connectionId);
+    if (!adapter) {
+      return { type: "error", message: "Not connected to database" };
+    }
+
+    try {
+      const foreignKeys = await adapter.getForeignKeys(schema, table);
+      return { type: "tableForeignKeys", foreignKeys } as TableForeignKeysMessage;
     } catch (err) {
       return { type: "error", message: (err as Error).message };
     }
