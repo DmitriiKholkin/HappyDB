@@ -8,10 +8,17 @@
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-007ACC?style=flat-square&logo=visualstudiocode)](https://code.visualstudio.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-Elastic%20v2-orange?style=flat-square)](LICENSE)
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/DmitriiKholkin.happy-db?style=flat-square&label=VS%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db)
 
 <br/>
 
 Manage your databases without leaving the editor — browse tables, run queries, inspect schemas and edit data, all from a comfortable webview panel.
+
+<br/>
+ 
+<a href="https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db">
+  <img src="https://img.shields.io/badge/Install%20from%20Marketplace-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Install from Marketplace"/>
+</a>
 
 </div>
 
