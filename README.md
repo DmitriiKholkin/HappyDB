@@ -4,7 +4,7 @@
 
 **Full-featured database manager right inside VS Code**
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](https://github.com/KholkinDmitrii/HappyDB)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](https://github.com/DmitriiKholkin/HappyDB)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-007ACC?style=flat-square&logo=visualstudiocode)](https://code.visualstudio.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-Elastic%20v2-orange?style=flat-square)](LICENSE)
@@ -51,7 +51,7 @@ Manage your databases without leaving the editor — browse tables, run queries,
 
 ```bash
 # Clone the repository
-git clone https://github.com/KholkinDmitrii/HappyDB.git
+git clone https://github.com/DmitriiKholkin/HappyDB.git
 cd HappyDB
 
 # Install extension dependencies
@@ -63,20 +63,6 @@ cd webview && npm install && cd ..
 # Build everything
 npm run build
 ```
-
-Then open the project in VS Code and press **F5** to launch the Extension Development Host.
-
-### Build scripts
-
-| Command | Description |
-|---|---|
-| `npm run build` | Build extension + webview |
-| `npm run build:ext` | Build extension only (production) |
-| `npm run watch` | Watch extension source for changes |
-| `npm run build:webview` | Build webview only |
-| `npm run lint` | Type-check with `tsc --noEmit` |
-
----
 
 ## 🔧 Usage
 
@@ -103,43 +89,6 @@ Settings are available under `HappyDB` in VS Code preferences:
 
 ---
 
-## 🏗️ Architecture
-
-```
-HappyDB/
-├── src/                        # VS Code extension (Node.js)
-│   ├── extension.ts            # Entry point — activates the extension
-│   ├── commands/               # Command registrations
-│   ├── connection/
-│   │   ├── ConnectionConfig.ts # Types: DbType, ConnectionConfig, QueryResult, …
-│   │   ├── ConnectionManager.ts# Manages active connections
-│   │   └── adapters/           # DB-specific adapters (Postgres, MySQL, MSSQL, SQLite)
-│   ├── providers/
-│   │   ├── ConnectionTreeProvider.ts  # Sidebar tree data provider
-│   │   └── DbEditorProvider.ts        # Webview panel provider
-│   └── ipc/
-│       ├── MessageBus.ts       # Type-safe message bus (ext ↔ webview)
-│       ├── messages.ts         # IPC message type definitions
-│       └── handlers/           # Message handlers
-└── webview/                    # React UI (runs inside VS Code Webview)
-    └── src/
-        ├── App.tsx             # Root component
-        ├── components/
-        │   ├── connection/     # Connection form UI
-        │   ├── grid/           # Data grid with pagination & filters
-        │   ├── schema/         # Schema/structure viewer
-        │   └── sql-editor/     # SQL query editor
-        ├── hooks/              # Custom React hooks
-        └── store/
-            └── useDbStore.ts   # Zustand global state
-```
-
-### Communication
-
-The extension and the webview communicate through a **typed IPC MessageBus**. The extension side runs database drivers and VS Code APIs; the webview renders the UI and sends user actions as messages. No shared runtime — fully decoupled.
-
----
-
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
@@ -147,25 +96,7 @@ The extension and the webview communicate through a **typed IPC MessageBus**. Th
 | Extension runtime | TypeScript + esbuild |
 | Webview UI | React 18 + Vite |
 | State management | Zustand |
-| Linting / formatting | Biome |
 | DB drivers | pg · mysql2 · mssql · better-sqlite3 |
-
----
-
-## 📋 Commands
-
-All commands are accessible via the Command Palette (`Ctrl+Shift+P`):
-
-| Command | Description |
-|---|---|
-| `HappyDB: Add Connection` | Create a new connection |
-| `HappyDB: Edit Connection` | Edit an existing connection |
-| `HappyDB: Delete Connection` | Remove a connection |
-| `HappyDB: Connect` | Open connection to the database |
-| `HappyDB: Disconnect` | Close the active connection |
-| `HappyDB: Refresh` | Refresh the connection tree |
-| `HappyDB: New SQL Query` | Open a new query editor |
-| `HappyDB: Open Table Structure` | Open the schema inspector for a table |
 
 ---
 
@@ -192,5 +123,5 @@ You are free to use, modify and distribute the source code for **non-commercial 
 ---
 
 <div align="center">
-Made with ❤️ by <a href="https://github.com/KholkinDmitrii">Kholkin Dmitrii</a>
+Made with ❤️ by <a href="https://github.com/DmitriiKholkin">Dmitrii Kholkin</a>
 </div>
