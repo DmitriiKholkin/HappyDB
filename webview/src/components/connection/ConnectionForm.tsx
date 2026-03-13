@@ -2,6 +2,7 @@ import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useVscodeApi } from "../../hooks/useVscodeApi";
 import { type ConnectionConfig, useDbStore } from "../../store/useDbStore";
+import { Icon } from "../common/Icon";
 
 type DbType = "postgresql" | "mssql" | "sqlite" | "mysql";
 
@@ -151,26 +152,30 @@ export const ConnectionForm: React.FC = () => {
         <button
           className={`db-type-btn ${dbType === "postgresql" ? "selected" : ""}`}
           onClick={() => setDbType("postgresql")}
+          type="button"
         >
-          🐘 PostgreSQL
+          <Icon name="database" /> PostgreSQL
         </button>
         <button
           className={`db-type-btn ${dbType === "mssql" ? "selected" : ""}`}
           onClick={() => setDbType("mssql")}
+          type="button"
         >
-          🔷 MSSQL
+          <Icon name="database" /> MSSQL
         </button>
         <button
           className={`db-type-btn ${dbType === "mysql" ? "selected" : ""}`}
           onClick={() => setDbType("mysql")}
+          type="button"
         >
-          🐬 MySQL
+          <Icon name="database" /> MySQL
         </button>
         <button
           className={`db-type-btn ${dbType === "sqlite" ? "selected" : ""}`}
           onClick={() => setDbType("sqlite")}
+          type="button"
         >
-          📁 SQLite
+          <Icon name="database" /> SQLite
         </button>
       </div>
 
@@ -263,9 +268,15 @@ export const ConnectionForm: React.FC = () => {
         <div
           className={`test-result ${testResult.success ? "success" : "error"}`}
         >
-          {testResult.success
-            ? "✅ Connection successful!"
-            : `❌ ${testResult.error || "Connection failed"}`}
+          {testResult.success ? (
+            <>
+              <Icon name="pass" /> Connection successful!
+            </>
+          ) : (
+            <>
+              <Icon name="error" /> {testResult.error || "Connection failed"}
+            </>
+          )}
         </div>
       )}
 
@@ -287,8 +298,13 @@ export const ConnectionForm: React.FC = () => {
           className="btn btn-primary"
           onClick={handleSave}
           disabled={saving}
+          type="button"
         >
-          {saving ? "Saving..." : "💾 Save"}
+          {saving ? "Saving..." : (
+            <>
+              <Icon name="save" /> Save
+            </>
+          )}
         </button>
       </div>
     </div>

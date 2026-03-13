@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useVscodeApi } from "../../hooks/useVscodeApi";
-import { useDbStore, ColumnInfo } from "../../store/useDbStore";
+import { useDbStore, type ColumnInfo } from "../../store/useDbStore";
+import { Icon } from "../common/Icon";
 
 interface IndexInfo {
   name: string;
@@ -135,7 +136,7 @@ export const TableStructure: React.FC = () => {
                     <tr key={col.name}>
                       <td className="row-number">{i + 1}</td>
                       <td style={{ fontWeight: col.isPrimaryKey ? 600 : 400 }}>
-                        {col.isPrimaryKey && "🔑 "}
+                        {col.isPrimaryKey && <Icon name="key" style={{ marginRight: 4 }} />}
                         {col.name}
                       </td>
                       <td
@@ -143,12 +144,12 @@ export const TableStructure: React.FC = () => {
                       >
                         {col.dataType}
                       </td>
-                      <td>{col.nullable ? "✓" : "✗"}</td>
+                      <td>{col.nullable ? <Icon name="check" /> : <Icon name="close" />}</td>
                       <td className={col.defaultValue ? "" : "null-value"}>
                         {col.defaultValue || "—"}
                       </td>
                       <td>{col.isPrimaryKey ? "✓" : ""}</td>
-                      <td>{col.isForeignKey ? "🔗" : ""}</td>
+                      <td>{col.isForeignKey ? <Icon name="link" /> : ""}</td>
                       <td>{col.maxLength || "—"}</td>
                     </tr>
                   ))}
@@ -251,15 +252,15 @@ export const TableStructure: React.FC = () => {
           {activeTab === "ddl" && (
             <div>
               <div style={{ marginBottom: 8 }}>
-                <button
-                  className="btn btn-icon"
-                  onClick={() =>
-                    navigator.clipboard.writeText(ddl).catch(() => {})
-                  }
-                  title="Copy DDL"
-                >
-                  📋 Copy DDL
-                </button>
+                  <button
+                    className="btn btn-icon"
+                    onClick={() =>
+                      navigator.clipboard.writeText(ddl).catch(() => {})
+                    }
+                    title="Copy DDL"
+                  >
+                    <Icon name="copy" /> Copy DDL
+                  </button>
               </div>
               <pre className="ddl-view">{ddl || "DDL not available"}</pre>
             </div>

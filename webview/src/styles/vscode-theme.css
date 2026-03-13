@@ -417,8 +417,8 @@ textarea::placeholder {
 }
 
 .status-bar.error {
-  background: var(--danger-color);
-  color: #fff;
+  color: var(--danger-color);
+  background: rgba(244, 71, 71, 0.08);
 }
 
 /* ===== Welcome ===== */
@@ -880,6 +880,7 @@ textarea::placeholder {
   padding: var(--spacing-xs) var(--spacing-sm);
   font-family: var(--font-mono);
   font-size: 11px;
+  background: var(--bg-primary);
   color: var(--fg-primary);
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ColumnInfo } from "../../store/useDbStore";
+import { type ColumnInfo } from "../../store/useDbStore";
+import { Icon } from "../common/Icon";
 
 interface CellEditorProps {
   value: unknown;
@@ -201,14 +202,14 @@ const BooleanEditor: React.FC<BooleanEditorProps> = ({
         className={`bool-btn ${value === true ? "active" : ""}`}
         onClick={() => onSave(true)}
       >
-        ✓ true
+        <Icon name="check" /> true
       </button>
       <button
         type="button"
         className={`bool-btn ${value === false ? "active" : ""}`}
         onClick={() => onSave(false)}
       >
-        ✗ false
+        <Icon name="close" /> false
       </button>
       {nullable && (
         <button
@@ -216,7 +217,7 @@ const BooleanEditor: React.FC<BooleanEditorProps> = ({
           className={`bool-btn ${value === null ? "active" : ""}`}
           onClick={() => onSave(null)}
         >
-          ∅ null
+          <Icon name="circle-slash" /> null
         </button>
       )}
     </div>

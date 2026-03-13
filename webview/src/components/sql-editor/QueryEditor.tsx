@@ -12,6 +12,10 @@ interface QueryHistoryItem {
   error?: string;
 }
 
+import { Icon } from "../common/Icon";
+
+// ────────────────────────────────────────────────────────────────────────────
+
 export const QueryEditor: React.FC = () => {
   const { postMessage, onMessage } = useVscodeApi();
   const connectionName = useDbStore((s) => s.currentConnectionName);
@@ -50,16 +54,12 @@ export const QueryEditor: React.FC = () => {
           loading: false,
         });
 
-        // Show success message if no tabular data
         if (!message.columns || message.columns.length === 0) {
-          setSuccessMessage(
-            message.message || "Query executed successfully.",
-          );
+          setSuccessMessage(message.message || "Query executed successfully.");
         } else {
           setSuccessMessage(null);
         }
 
-        // Add to history
         setHistory((prev) => [
           {
             sql: sql.trim(),
@@ -68,7 +68,7 @@ export const QueryEditor: React.FC = () => {
             rowCount: message.rowCount || 0,
             success: true,
           },
-          ...prev.slice(0, 49), // Keep last 50
+          ...prev.slice(0, 49),
         ]);
       }
       if (message.type === "queryError") {
@@ -97,30 +97,21 @@ export const QueryEditor: React.FC = () => {
   const handleExecute = useCallback(
     (sqlToRun?: string) => {
       const execSql = sqlToRun || sql;
-      if (!connectionName || !execSql.trim()) {
-        return;
-      }
+      if (!connectionName || !execSql.trim()) return;
       setQueryState({ loading: true, error: null, sql: execSql });
       setSuccessMessage(null);
-      postMessage({
-        type: "query",
-        connectionName,
-        sql: execSql.trim(),
-      });
+      postMessage({ type: "query", connectionName, sql: execSql.trim() });
     },
     [connectionName, sql, postMessage, setQueryState],
   );
 
   const handleExecuteSelection = useCallback(() => {
     const textarea = textareaRef.current;
-    if (!textarea) {
-      return;
-    }
+    if (!textarea) return;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     if (start !== end) {
-      const selectedText = sql.substring(start, end);
-      handleExecute(selectedText);
+      handleExecute(sql.substring(start, end));
     } else {
       handleExecute();
     }
@@ -135,13 +126,10 @@ export const QueryEditor: React.FC = () => {
       e.preventDefault();
       handleExecuteSelection();
     }
-    // Tab inserts spaces
     if (e.key === "Tab") {
       e.preventDefault();
       const textarea = textareaRef.current;
-      if (!textarea) {
-        return;
-      }
+      if (!textarea) return;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const newSql = sql.substring(0, start) + "  " + sql.substring(end);
@@ -159,81 +147,7 @@ export const QueryEditor: React.FC = () => {
   };
 
   const handleFormatSql = () => {
-    // Basic SQL formatting
     let formatted = sql.trim();
-
-    // Uppercase keywords
-    const keywords = [
-      "SELECT",
-      "FROM",
-      "WHERE",
-      "AND",
-      "OR",
-      "ORDER BY",
-      "GROUP BY",
-      "HAVING",
-      "INSERT INTO",
-      "VALUES",
-      "UPDATE",
-      "SET",
-      "DELETE FROM",
-      "JOIN",
-      "LEFT JOIN",
-      "RIGHT JOIN",
-      "INNER JOIN",
-      "OUTER JOIN",
-      "FULL JOIN",
-      "CROSS JOIN",
-      "ON",
-      "AS",
-      "IN",
-      "NOT",
-      "NULL",
-      "IS",
-      "LIKE",
-      "BETWEEN",
-      "EXISTS",
-      "UNION",
-      "ALL",
-      "DISTINCT",
-      "CASE",
-      "WHEN",
-      "THEN",
-      "ELSE",
-      "END",
-      "LIMIT",
-      "OFFSET",
-      "CREATE",
-      "TABLE",
-      "INDEX",
-      "ALTER",
-      "DROP",
-      "TRUNCATE",
-      "PRIMARY KEY",
-      "FOREIGN KEY",
-      "REFERENCES",
-      "CONSTRAINT",
-      "NOT NULL",
-      "DEFAULT",
-      "CHECK",
-      "UNIQUE",
-      "CASCADE",
-      "ASC",
-      "DESC",
-      "COUNT",
-      "SUM",
-      "AVG",
-      "MIN",
-      "MAX",
-      "TOP",
-      "FETCH",
-      "NEXT",
-      "ROWS",
-      "ONLY",
-      "WITH",
-    ];
-
-    // Put major clauses on their own lines
     const majorClauses = [
       "SELECT",
       "FROM",
@@ -256,16 +170,12 @@ export const QueryEditor: React.FC = () => {
       "OFFSET",
       "UNION",
     ];
-
     for (const clause of majorClauses) {
       const regex = new RegExp(`\\b${clause}\\b`, "gi");
       formatted = formatted.replace(regex, `\n${clause}`);
     }
-
     formatted = formatted.replace(/^\n/, "").trim();
-    // Remove excessive blank lines
     formatted = formatted.replace(/\n{3,}/g, "\n\n");
-
     setSql(formatted);
   };
 
@@ -274,17 +184,13 @@ export const QueryEditor: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    if (queryState.columns.length === 0) {
-      return;
-    }
+    if (queryState.columns.length === 0) return;
     const headers = queryState.columns.map((c) => c.name);
     const csvRows = [headers.join(",")];
     for (const row of queryState.rows) {
       const values = headers.map((h) => {
         const v = row[h];
-        if (v === null || v === undefined) {
-          return "";
-        }
+        if (v === null || v === undefined) return "";
         const str = String(v);
         return str.includes(",") || str.includes('"') || str.includes("\n")
           ? `"${str.replace(/"/g, '""')}"`
@@ -296,30 +202,23 @@ export const QueryEditor: React.FC = () => {
   };
 
   const handleExportJSON = () => {
-    if (queryState.rows.length === 0) {
-      return;
-    }
+    if (queryState.rows.length === 0) return;
     navigator.clipboard
       .writeText(JSON.stringify(queryState.rows, null, 2))
       .catch(() => {});
   };
 
   const handleExportInsert = () => {
-    if (queryState.rows.length === 0 || queryState.columns.length === 0) {
-      return;
-    }
+    if (queryState.rows.length === 0 || queryState.columns.length === 0) return;
     const cols = queryState.columns.map((c) => `"${c.name}"`).join(", ");
     const inserts = queryState.rows
       .map((row) => {
         const values = queryState.columns
           .map((c) => {
             const v = row[c.name];
-            if (v === null || v === undefined) {
-              return "NULL";
-            }
-            if (typeof v === "number" || typeof v === "boolean") {
+            if (v === null || v === undefined) return "NULL";
+            if (typeof v === "number" || typeof v === "boolean")
               return String(v);
-            }
             return `'${String(v).replace(/'/g, "''")}'`;
           })
           .join(", ");
@@ -366,47 +265,54 @@ export const QueryEditor: React.FC = () => {
       {/* Toolbar */}
       <div className="sql-editor-toolbar">
         <button
+          type="button"
           className="btn btn-primary btn-sm"
           onClick={() => handleExecute()}
           disabled={queryState.loading}
         >
           {queryState.loading ? (
             <>
-              <span className="spinner" /> Running...
+              <Icon name="loading~spin" /> Running...
             </>
           ) : (
-            "▶ Execute (F5)"
+            <>
+              <Icon name="run" /> Execute (F5)
+            </>
           )}
         </button>
         <button
+          type="button"
           className="btn btn-secondary btn-sm"
           onClick={handleExecuteSelection}
           disabled={queryState.loading}
         >
-          ▶ Run Selection (Ctrl+Enter)
+          <Icon name="run-above" /> Run Selection (Ctrl+Enter)
         </button>
         <div className="toolbar-separator" />
         <button
+          type="button"
           className="btn btn-icon"
           onClick={handleFormatSql}
           title="Format SQL"
         >
-          📝 Format
+          <Icon name="symbol-keyword" /> Format
         </button>
         <button
+          type="button"
           className="btn btn-icon"
           onClick={handleCopySql}
           title="Copy SQL"
         >
-          📋
+          <Icon name="copy" />
         </button>
         <div style={{ flex: 1 }} />
         <button
+          type="button"
           className={`btn btn-icon ${showHistory ? "active" : ""}`}
           onClick={() => setShowHistory(!showHistory)}
           title="Query History"
         >
-          🕒 History ({history.length})
+          <Icon name="history" /> History ({history.length})
         </button>
       </div>
 
@@ -415,8 +321,9 @@ export const QueryEditor: React.FC = () => {
         <div className="query-history">
           <div className="query-history-title">Query History</div>
           {history.map((item, i) => (
-            <div
+            <button
               key={i}
+              type="button"
               className="query-history-item"
               onClick={() => handleHistoryClick(item)}
               title={item.sql}
@@ -426,9 +333,11 @@ export const QueryEditor: React.FC = () => {
                   color: item.success
                     ? "var(--success-color)"
                     : "var(--danger-color)",
+                  display: "inline-flex",
+                  alignItems: "center",
                 }}
               >
-                {item.success ? "✓" : "✗"}
+                {item.success ? <Icon name="pass" /> : <Icon name="error" />}
               </span>{" "}
               {item.sql.substring(0, 100)}
               {item.sql.length > 100 ? "…" : ""}
@@ -436,7 +345,7 @@ export const QueryEditor: React.FC = () => {
                 {item.duration}ms · {item.rowCount} rows ·{" "}
                 {new Date(item.timestamp).toLocaleTimeString()}
               </span>
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -469,28 +378,31 @@ export const QueryEditor: React.FC = () => {
             </span>
             <div style={{ flex: 1 }} />
             <button
+              type="button"
               className="btn btn-icon"
               onClick={handleExportCSV}
               title="Copy as CSV"
               style={{ fontSize: 11 }}
             >
-              📋 CSV
+              <Icon name="file-symlink-file" /> CSV
             </button>
             <button
+              type="button"
               className="btn btn-icon"
               onClick={handleExportJSON}
               title="Copy as JSON"
               style={{ fontSize: 11 }}
             >
-              📋 JSON
+              <Icon name="file-symlink-file" /> JSON
             </button>
             <button
+              type="button"
               className="btn btn-icon"
               onClick={handleExportInsert}
               title="Copy as INSERT"
               style={{ fontSize: 11 }}
             >
-              📋 INSERT
+              <Icon name="file-symlink-file" /> INSERT
             </button>
           </div>
           <div

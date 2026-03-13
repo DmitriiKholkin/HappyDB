@@ -1,5 +1,6 @@
 import React from "react";
-import { ColumnInfo } from "../../store/useDbStore";
+import { type ColumnInfo } from "../../store/useDbStore";
+import { Icon } from "../common/Icon";
 
 interface FilterState {
   column: string;
@@ -78,8 +79,9 @@ export const FilterRow: React.FC<FilterRowProps> = ({
             className="filter-remove"
             onClick={() => onRemoveFilter(index)}
             title="Remove filter"
+            type="button"
           >
-            ✕
+            <Icon name="close" />
           </button>
         </div>
       ))}

@@ -2,6 +2,7 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useVscodeApi } from "../../hooks/useVscodeApi";
 import { type ColumnInfo, useDbStore } from "../../store/useDbStore";
+import { Icon } from "../common/Icon";
 import { CellEditor } from "./CellEditor";
 import { FilterRow } from "./FilterRow";
 
@@ -143,11 +144,11 @@ export const DataGrid: React.FC = () => {
     });
   };
 
-  const getSortIndicator = (colName: string): string => {
+  const getSortIndicator = (colName: string): React.ReactNode => {
     if (!sort || sort.column !== colName) {
-      return "";
+      return null;
     }
-    return sort.direction === "asc" ? " ▲" : " ▼";
+    return sort.direction === "asc" ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />;
   };
 
   // --- Pagination ---
@@ -430,48 +431,52 @@ export const DataGrid: React.FC = () => {
 
         {hasChanges && (
           <>
-            <button className="btn btn-primary btn-sm" onClick={handleApply}>
-              ✓ Apply ({pendingChanges.length + newRows.length})
+            <button className="btn btn-primary btn-sm" onClick={handleApply} type="button">
+              <Icon name="check" /> Apply ({pendingChanges.length + newRows.length})
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleRevert}>
-              ↶ Revert
+            <button className="btn btn-secondary btn-sm" onClick={handleRevert} type="button">
+              <Icon name="discard" /> Revert
             </button>
             <div className="toolbar-separator" />
           </>
         )}
 
-        <button className="btn btn-icon" onClick={handleAddRow} title="Add row">
-          ➕
+        <button className="btn btn-icon" onClick={handleAddRow} title="Add row" type="button">
+          <Icon name="add" />
         </button>
         <button
           className="btn btn-icon"
           onClick={handleDeleteSelected}
           disabled={selectedRows.size === 0}
           title={`Delete ${selectedRows.size} row(s)`}
+          type="button"
         >
-          🗑️
+          <Icon name="trash" />
         </button>
         <div className="toolbar-separator" />
         <button
           className={`btn btn-icon ${showFilters ? "active" : ""}`}
           onClick={() => setShowFilters(!showFilters)}
           title="Toggle filters"
+          type="button"
         >
-          🔍
+          <Icon name="search" />
         </button>
         <button
           className="btn btn-icon"
           onClick={handleExportCSV}
           title="Copy as CSV"
+          type="button"
         >
-          📋 CSV
+          <Icon name="copy" /> CSV
         </button>
         <button
           className="btn btn-icon"
           onClick={handleExportJSON}
           title="Copy as JSON"
+          type="button"
         >
-          📋 JSON
+          <Icon name="copy" /> JSON
         </button>
         <div className="toolbar-separator" />
         <button
@@ -481,8 +486,9 @@ export const DataGrid: React.FC = () => {
             fetchData(tableState.page);
           }}
           title="Refresh"
+          type="button"
         >
-          🔄
+          <Icon name="refresh" />
         </button>
       </div>
 
@@ -536,12 +542,12 @@ export const DataGrid: React.FC = () => {
                       <span className="col-header">
                         {col.isPrimaryKey && (
                           <span className="pk-badge" title="Primary Key">
-                            🔑
+                            <Icon name="key" />
                           </span>
                         )}
                         {col.isForeignKey && (
                           <span className="fk-badge" title="Foreign Key">
-                            🔗
+                            <Icon name="link" />
                           </span>
                         )}
                         {col.name}
@@ -616,15 +622,16 @@ export const DataGrid: React.FC = () => {
                 {newRows.map((newRow, nri) => (
                   <tr key={`new-${nri}`} className="new-row">
                     <td style={{ textAlign: "center" }}>
-                      <button
-                        className="btn-inline-delete"
-                        onClick={() =>
-                          setNewRows((prev) => prev.filter((_, i) => i !== nri))
-                        }
-                        title="Remove new row"
-                      >
-                        ✕
-                      </button>
+                        <button
+                          className="btn-inline-delete"
+                          onClick={() =>
+                            setNewRows((prev) => prev.filter((_, i) => i !== nri))
+                          }
+                          title="Remove new row"
+                          type="button"
+                        >
+                          <Icon name="close" />
+                        </button>
                     </td>
                     <td
                       className="row-number"
@@ -706,15 +713,17 @@ export const DataGrid: React.FC = () => {
               className="btn btn-icon"
               onClick={handlePrevPage}
               disabled={tableState.page === 0}
+              type="button"
             >
-              ◀
+              <Icon name="chevron-left" />
             </button>
             <button
               className="btn btn-icon"
               onClick={handleNextPage}
               disabled={tableState.page >= totalPages - 1}
+              type="button"
             >
-              ▶
+              <Icon name="chevron-right" />
             </button>
           </div>
         </>
@@ -728,7 +737,15 @@ function formatValue(
   col: ColumnInfo,
 ): string | React.ReactNode {
   if (typeof value === "boolean") {
-    return value ? "✓ true" : "✗ false";
+    return value ? (
+      <>
+        <Icon name="check" /> true
+      </>
+    ) : (
+      <>
+        <Icon name="close" /> false
+      </>
+    );
   }
   if (typeof value === "object" && value !== null) {
     return JSON.stringify(value);

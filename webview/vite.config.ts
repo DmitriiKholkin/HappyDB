@@ -1,8 +1,10 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
+  base: "./",
+  assetsInclude: ["**/*.ttf"],
   build: {
     outDir: "../dist/webview",
     emptyOutDir: true,
@@ -19,6 +21,5 @@ export default defineConfig({
       },
     },
   },
-  // Don't clear terminal on start
   clearScreen: false,
 });

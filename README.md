@@ -7,6 +7,10 @@
 [![Marketplace](https://img.shields.io/visual-studio-marketplace/v/DmitriiKholkin.happy-db?style=flat-square&label=VS%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-007ACC?style=flat-square&logo=visualstudiocode)](https://code.visualstudio.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Issues](https://img.shields.io/github/issues/DmitriiKholkin/HappyDB?style=flat-square)](https://github.com/DmitriiKholkin/HappyDB/issues)
+
+<br/>
+
 [![License](https://img.shields.io/badge/license-Elastic%20v2-orange?style=flat-square)](LICENSE.md)
 
 <br/>
@@ -37,12 +41,27 @@ Manage your databases without leaving the editor — browse tables, run queries,
 
 ## 🗃️ Supported Databases
 
-| Database       | Driver              |
-|----------------|---------------------|
-| PostgreSQL     | `pg`                |
-| MySQL / MariaDB| `mysql2`            |
-| Microsoft SQL  | `mssql`             |
-| SQLite         | `better-sqlite3`    |
+| Database        | Driver           | Required fields                                      |
+|-----------------|------------------|------------------------------------------------------|
+| PostgreSQL      | `pg`             | `host`, `port`, `database`, `username`, `ssl`        |
+| MySQL / MariaDB | `mysql2`         | `host`, `port`, `database`, `username`, `ssl`        |
+| Microsoft SQL   | `mssql`          | `host`, `port`, `database`, `username`, `encrypt`, `trustServerCertificate` |
+| SQLite          | `better-sqlite3` | `filePath`                                           |
+
+All connections share `name`, `type` and optional `password`.
+
+---
+
+## ⚙️ Configuration
+
+Settings are available under `HappyDB` in VS Code preferences:
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `happydb.connections` | `array` | `[]` | Saved connection list |
+| `happydb.pageSize` | `number` | `100` | Rows per page in the data grid |
+| `happydb.queryHistoryLimit` | `number` | `50` | Max queries kept in history |
+| `happydb.autoRefresh` | `boolean` | `false` | Auto-refresh tree after changes |
 
 ---
 
@@ -82,19 +101,6 @@ npm run build
 
 ---
 
-## ⚙️ Configuration
-
-Settings are available under `HappyDB` in VS Code preferences:
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `happydb.connections` | `array` | `[]` | Saved connection list |
-| `happydb.pageSize` | `number` | `100` | Rows per page in the data grid |
-| `happydb.queryHistoryLimit` | `number` | `50` | Max queries kept in history |
-| `happydb.autoRefresh` | `boolean` | `false` | Auto-refresh tree after changes |
-
----
-
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
@@ -106,15 +112,15 @@ Settings are available under `HappyDB` in VS Code preferences:
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing & Feedback
 
-Contributions are welcome! Feel free to open an issue or submit a pull request.
+Bug reports, feature requests and pull requests are all welcome!
 
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m 'feat: add my feature'`
-4. Push the branch: `git push origin feature/my-feature`
-5. Open a Pull Request
+- 🐛 **Found a bug?** — [open an issue](https://github.com/DmitriiKholkin/HappyDB/issues/new?template=bug_report.md)
+- 💡 **Have an idea?** — [suggest a feature](https://github.com/DmitriiKholkin/HappyDB/issues/new?template=feature_request.md)
+- ⭐ **Enjoying HappyDB?** — [leave a review](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db&ssr=false#review-details)
+
+To contribute code: fork the repo → create a branch → commit → open a PR.
 
 ---
 
