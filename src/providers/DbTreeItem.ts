@@ -10,7 +10,7 @@ export type DbTreeItemType =
   | "function";
 
 export interface DbTreeItemData {
-  connectionId: string;
+  connectionName: string;
   schema?: string;
   name?: string;
   type?: "function" | "procedure";

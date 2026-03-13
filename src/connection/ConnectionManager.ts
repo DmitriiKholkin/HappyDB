@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import * as vscode from "vscode";
 import type { IDbAdapter } from "./adapters/IDbAdapter";
 import { MssqlAdapter } from "./adapters/MssqlAdapter";
@@ -7,12 +6,18 @@ import { PostgresAdapter } from "./adapters/PostgresAdapter";
 import { SqliteAdapter } from "./adapters/SqliteAdapter";
 import { type ConnectionConfig, DbType } from "./ConnectionConfig";
 
+export interface ConnectionChangeEvent {
+  type: "add" | "update" | "delete";
+  oldName?: string;
+  newName?: string;
+}
+
 /**
  * Manages database connections: CRUD, SecretStorage for passwords, adapter pool.
  */
 export class ConnectionManager {
   private adapters = new Map<string, IDbAdapter>();
-  private _onDidChange = new vscode.EventEmitter<void>();
+  private _onDidChange = new vscode.EventEmitter<ConnectionChangeEvent>();
   readonly onDidChange = this._onDidChange.event;
 
   constructor() {}
@@ -28,29 +33,34 @@ export class ConnectionManager {
     conn: ConnectionConfig,
     password?: string,
   ): Promise<void> {
-    if (!conn.id) {
-      conn.id = uuidv4();
+    const connections = this.getConnections();
+    if (connections.find((c) => c.name === conn.name)) {
+      throw new Error(`Connection with name "${conn.name}" already exists`);
     }
 
     if (password !== undefined) {
       conn.password = password;
     }
 
-    const connections = this.getConnections();
     connections.push(conn);
     await this.saveConnections(connections);
 
-    this._onDidChange.fire();
+    this._onDidChange.fire({ type: "add", newName: conn.name });
   }
 
   async updateConnection(
+    oldName: string,
     conn: ConnectionConfig,
     password?: string,
   ): Promise<void> {
     const connections = this.getConnections();
-    const index = connections.findIndex((c) => c.id === conn.id);
+    const index = connections.findIndex((c) => c.name === oldName);
     if (index === -1) {
-      throw new Error(`Connection ${conn.id} not found`);
+      throw new Error(`Connection "${oldName}" not found`);
+    }
+
+    if (conn.name !== oldName && connections.find((c) => c.name === conn.name)) {
+      throw new Error(`Connection with name "${conn.name}" already exists`);
     }
 
     if (password !== undefined) {
@@ -64,23 +74,25 @@ export class ConnectionManager {
     await this.saveConnections(connections);
 
     // If connected, disconnect the old adapter
-    if (this.adapters.has(conn.id)) {
-      await this.disconnect(conn.id);
+    if (this.adapters.has(oldName)) {
+      await this.disconnect(oldName);
+      // If we are renaming, we might want to reconnect automatically or let the user do it.
+      // For now, just disconnect as the name (ID) changed.
     }
 
-    this._onDidChange.fire();
+    this._onDidChange.fire({ type: "update", oldName, newName: conn.name });
   }
 
-  async deleteConnection(id: string): Promise<void> {
+  async deleteConnection(name: string): Promise<void> {
     // Disconnect if connected
-    if (this.adapters.has(id)) {
-      await this.disconnect(id);
+    if (this.adapters.has(name)) {
+      await this.disconnect(name);
     }
 
-    const connections = this.getConnections().filter((c) => c.id !== id);
+    const connections = this.getConnections().filter((c) => c.name !== name);
     await this.saveConnections(connections);
 
-    this._onDidChange.fire();
+    this._onDidChange.fire({ type: "delete", oldName: name });
   }
 
   private async saveConnections(
@@ -96,15 +108,15 @@ export class ConnectionManager {
 
   // ---- Password management ----
 
-  async getPassword(connectionId: string): Promise<string> {
+  async getPassword(connectionName: string): Promise<string> {
     const connections = this.getConnections();
-    const conn = connections.find((c) => c.id === connectionId);
+    const conn = connections.find((c) => c.name === connectionName);
     return conn?.password || "";
   }
 
-  async setPassword(connectionId: string, password: string): Promise<void> {
+  async setPassword(connectionName: string, password: string): Promise<void> {
     const connections = this.getConnections();
-    const index = connections.findIndex((c) => c.id === connectionId);
+    const index = connections.findIndex((c) => c.name === connectionName);
     if (index !== -1) {
       connections[index].password = password;
       await this.saveConnections(connections);
@@ -113,43 +125,43 @@ export class ConnectionManager {
 
   // ---- Adapter management ----
 
-  getAdapter(connectionId: string): IDbAdapter | undefined {
-    return this.adapters.get(connectionId);
+  getAdapter(connectionName: string): IDbAdapter | undefined {
+    return this.adapters.get(connectionName);
   }
 
-  isConnected(connectionId: string): boolean {
-    const adapter = this.adapters.get(connectionId);
+  isConnected(connectionName: string): boolean {
+    const adapter = this.adapters.get(connectionName);
     return adapter?.isConnected() ?? false;
   }
 
-  async connect(connectionId: string): Promise<IDbAdapter> {
+  async connect(connectionName: string): Promise<IDbAdapter> {
     // If already connected, return existing
-    const existing = this.adapters.get(connectionId);
+    const existing = this.adapters.get(connectionName);
     if (existing?.isConnected()) {
       return existing;
     }
 
-    const config = this.getConnections().find((c) => c.id === connectionId);
+    const config = this.getConnections().find((c) => c.name === connectionName);
     if (!config) {
-      throw new Error(`Connection ${connectionId} not found`);
+      throw new Error(`Connection "${connectionName}" not found`);
     }
 
-    const password = await this.getPassword(connectionId);
+    const password = await this.getPassword(connectionName);
     const adapter = this.createAdapter(config, password);
 
     await adapter.connect();
-    this.adapters.set(connectionId, adapter);
-    this._onDidChange.fire();
+    this.adapters.set(connectionName, adapter);
+    this._onDidChange.fire({ type: "update", newName: connectionName });
 
     return adapter;
   }
 
-  async disconnect(connectionId: string): Promise<void> {
-    const adapter = this.adapters.get(connectionId);
+  async disconnect(connectionName: string): Promise<void> {
+    const adapter = this.adapters.get(connectionName);
     if (adapter) {
       await adapter.disconnect();
-      this.adapters.delete(connectionId);
-      this._onDidChange.fire();
+      this.adapters.delete(connectionName);
+      this._onDidChange.fire({ type: "update", newName: connectionName });
     }
   }
 
@@ -159,7 +171,7 @@ export class ConnectionManager {
   ): Promise<boolean> {
     const pw =
       password ??
-      (config.type !== "sqlite" ? await this.getPassword(config.id) : "");
+      (config.type !== "sqlite" ? await this.getPassword(config.name) : "");
     const adapter = this.createAdapter(config, pw);
     return adapter.testConnection();
   }
@@ -198,14 +210,19 @@ export class ConnectionManager {
     let count = 0;
 
     for (const conn of imported) {
-      // Assign new ID to avoid conflicts
-      conn.id = uuidv4();
+      // If name conflict, append number
+      let newName = conn.name;
+      let i = 1;
+      while (existing.find((c) => c.name === newName)) {
+        newName = `${conn.name} (${i++})`;
+      }
+      conn.name = newName;
       existing.push(conn);
       count++;
     }
 
     await this.saveConnections(existing);
-    this._onDidChange.fire();
+    this._onDidChange.fire({ type: "add" }); // Batch update
     return count;
   }
 

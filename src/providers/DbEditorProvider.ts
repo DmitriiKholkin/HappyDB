@@ -6,74 +6,200 @@ import { registerQueryHandlers } from "../ipc/handlers/queryHandler";
 import { registerTableDataHandlers } from "../ipc/handlers/tableDataHandler";
 import { MessageBus } from "../ipc/MessageBus";
 
+interface PanelMetadata {
+  connectionName?: string;
+  type: "connectionForm" | "tableView" | "queryEditor" | "tableStructure";
+  schema?: string;
+  name?: string;
+  suffix?: string;
+}
+
 /**
  * Manages WebviewPanels for table views, query editors, and connection forms.
  */
 export class DbEditorProvider {
   private panels = new Map<string, vscode.WebviewPanel>();
+  private panelMetadata = new Map<vscode.WebviewPanel, PanelMetadata>();
 
   constructor(
     private context: vscode.ExtensionContext,
     private connectionManager: ConnectionManager,
-  ) {}
+  ) {
+    // Update titles when connections change (e.g., renamed)
+    this.connectionManager.onDidChange((e) => {
+      if (e?.type === "delete" && e.oldName) {
+        // Close all panels associated with the deleted connection
+        for (const [panel, metadata] of this.panelMetadata.entries()) {
+          if (metadata.connectionName === e.oldName) {
+            panel.dispose();
+          }
+        }
+      } else if (e?.type === "update" && e.oldName && e.newName && e.oldName !== e.newName) {
+        // Close all panels associated with the renamed connection
+        for (const [panel, metadata] of this.panelMetadata.entries()) {
+          if (metadata.connectionName === e.oldName) {
+            panel.dispose();
+          }
+        }
+      }
+      this.updateAllTitles();
+    });
+  }
 
-  openConnectionForm(connectionId?: string): void {
-    const panelKey = connectionId
-      ? `conn-form-${connectionId}`
+  private updateAllTitles(): void {
+    const connections = this.connectionManager.getConnections();
+    for (const [panel, metadata] of this.panelMetadata.entries()) {
+      if (metadata.connectionName) {
+        // If connection still exists, update its name in title
+        const conn = connections.find((c) => c.name === metadata.connectionName);
+        if (conn) {
+          const newTitle = this.formatTitle(conn.name, metadata);
+          if (panel.title !== newTitle) {
+            panel.title = newTitle;
+          }
+        }
+      }
+    }
+  }
+
+  private formatTitle(connectionName: string, metadata: PanelMetadata): string {
+    switch (metadata.type) {
+      case "connectionForm":
+        return `${connectionName} — Settings`;
+      case "tableView":
+        return `${connectionName}: ${metadata.schema}.${metadata.name}`;
+      case "tableStructure":
+        return `${connectionName}: ${metadata.schema}.${metadata.name} (Structure)`;
+      case "queryEditor":
+        return `${connectionName}: ${metadata.name || "SQL"}`;
+      default:
+        return metadata.name || "HappyDB";
+    }
+  }
+
+  openConnectionForm(connectionName?: string): void {
+    const panelKey = connectionName
+      ? `conn-form-${connectionName}`
       : "conn-form-new";
+
+    let title = "New Connection";
+    let metadata: PanelMetadata = { type: "connectionForm" };
+
+    if (connectionName) {
+      const conn = this.connectionManager
+        .getConnections()
+        .find((c) => c.name === connectionName);
+      if (conn) {
+        title = `${conn.name} — Settings`;
+        metadata = {
+          connectionName,
+          type: "connectionForm",
+          name: conn.name,
+        };
+      }
+    }
+
+    this.openWebviewPanel(panelKey, title, metadata, {
+      type: "init",
+      view: "connectionForm",
+      connectionName,
+    });
+  }
+
+  openTableView(connectionName: string, schema: string, table: string): void {
+    const panelKey = `table-${connectionName}-${schema}-${table}`;
+    const conn = this.connectionManager
+      .getConnections()
+      .find((c) => c.name === connectionName);
+    const connName = conn?.name || connectionName;
+
+    const metadata: PanelMetadata = {
+      connectionName,
+      type: "tableView",
+      schema,
+      name: table,
+    };
+
     this.openWebviewPanel(
       panelKey,
-      connectionId ? "Edit Connection" : "New Connection",
+      `${connName}: ${schema}.${table}`,
+      metadata,
       {
         type: "init",
-        view: "connectionForm",
-        connectionId,
+        view: "tableView",
+        connectionName,
+        schema,
+        table,
       },
     );
   }
 
-  openTableView(connectionId: string, schema: string, table: string): void {
-    const panelKey = `table-${connectionId}-${schema}-${table}`;
-    this.openWebviewPanel(panelKey, `${table}`, {
-      type: "init",
-      view: "tableView",
-      connectionId,
-      schema,
-      table,
-    });
-  }
-
-  openQueryEditor(connectionId: string, initialSql?: string): void {
-    const panelKey = `query-${connectionId}-${Date.now()}`;
+  openQueryEditor(
+    connectionName: string,
+    initialSql?: string,
+    customTitle?: string,
+  ): void {
+    const panelKey = `query-${connectionName}-${Date.now()}`;
     const conn = this.connectionManager
       .getConnections()
-      .find((c) => c.id === connectionId);
-    this.openWebviewPanel(panelKey, `SQL — ${conn?.name || "Query"}`, {
-      type: "init",
-      view: "queryEditor",
-      connectionId,
-      initialSql,
-    });
+      .find((c) => c.name === connectionName);
+    const connName = conn?.name || connectionName;
+
+    const metadata: PanelMetadata = {
+      connectionName,
+      type: "queryEditor",
+      name: customTitle,
+    };
+
+    this.openWebviewPanel(
+      panelKey,
+      `${connName}: ${customTitle || "SQL"}`,
+      metadata,
+      {
+        type: "init",
+        view: "queryEditor",
+        connectionName,
+        initialSql,
+      },
+    );
   }
 
   openTableStructure(
-    connectionId: string,
+    connectionName: string,
     schema: string,
     table: string,
   ): void {
-    const panelKey = `structure-${connectionId}-${schema}-${table}`;
-    this.openWebviewPanel(panelKey, `${table} — Structure`, {
-      type: "init",
-      view: "tableStructure",
-      connectionId,
+    const panelKey = `structure-${connectionName}-${schema}-${table}`;
+    const conn = this.connectionManager
+      .getConnections()
+      .find((c) => c.name === connectionName);
+    const connName = conn?.name || connectionName;
+
+    const metadata: PanelMetadata = {
+      connectionName,
+      type: "tableStructure",
       schema,
-      table,
-    });
+      name: table,
+    };
+
+    this.openWebviewPanel(
+      panelKey,
+      `${connName}: ${schema}.${table} (Structure)`,
+      metadata,
+      {
+        type: "init",
+        view: "tableStructure",
+        connectionName,
+        schema,
+        table,
+      },
+    );
   }
 
   private openWebviewPanel(
     key: string,
     title: string,
+    metadata: PanelMetadata,
     initMessage: unknown,
   ): void {
     // Reuse panel if already open
@@ -101,6 +227,8 @@ export class DbEditorProvider {
     // Set icon based on view type
     panel.iconPath = new vscode.ThemeIcon("database");
 
+    this.panelMetadata.set(panel, metadata);
+
     // Set HTML content
     panel.webview.html = this.getWebviewContent(panel.webview);
 
@@ -122,6 +250,7 @@ export class DbEditorProvider {
     // Clean up
     panel.onDidDispose(() => {
       this.panels.delete(key);
+      this.panelMetadata.delete(panel);
       subscription.dispose();
     });
 
@@ -181,7 +310,7 @@ export class DbEditorProvider {
 </html>`;
   }
 
-  private sendToWebview(panel: vscode.WebviewPanel, message: any): void {
+  private sendToWebview(panel: vscode.WebviewPanel, message: unknown): void {
     panel.webview.postMessage(message);
   }
 

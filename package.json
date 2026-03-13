@@ -2,7 +2,7 @@
   "name": "happy-db",
   "displayName": "HappyDB",
   "description": "Full-featured database manager right inside VS Code",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "DmitriiKholkin",
   "repository": {
     "type": "git",
@@ -162,11 +162,6 @@
           "command": "happydb.showViewCode",
           "when": "view == happydb.connectionsView && viewItem == view",
           "group": "inline"
-        },
-        {
-          "command": "happydb.refreshConnection",
-          "when": "view == happydb.connectionsView && viewItem =~ /^connection/",
-          "group": "3_refresh@1"
         }
       ]
     },

@@ -10,7 +10,7 @@ import { useDbStore, type ViewType } from "./store/useDbStore";
 interface InitMessage {
   type: "init";
   view: ViewType;
-  connectionId?: string;
+  connectionName?: string;
   schema?: string;
   table?: string;
   initialSql?: string;
@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const activeView = useDbStore((s) => s.activeView);
   const setActiveView = useDbStore((s) => s.setActiveView);
   const setCurrentContext = useDbStore((s) => s.setCurrentContext);
-  const setEditingConnectionId = useDbStore((s) => s.setEditingConnectionId);
+  const setEditingConnectionName = useDbStore((s) => s.setEditingConnectionName);
   const setConnections = useDbStore((s) => s.setConnections);
   const statusMessage = useDbStore((s) => s.statusMessage);
   const isStatusError = useDbStore((s) => s.isStatusError);
@@ -34,11 +34,11 @@ const App: React.FC = () => {
         case "init": {
           const init = message as unknown as InitMessage;
           setActiveView(init.view);
-          if (init.connectionId) {
-            setCurrentContext(init.connectionId, init.schema, init.table);
+          if (init.connectionName) {
+            setCurrentContext(init.connectionName, init.schema, init.table);
           }
           if (init.view === "connectionForm") {
-            setEditingConnectionId(init.connectionId ?? null);
+            setEditingConnectionName(init.connectionName ?? null);
           }
           if (init.view === "queryEditor" && init.initialSql) {
             const setQueryState = useDbStore.getState().setQueryState;
@@ -57,7 +57,7 @@ const App: React.FC = () => {
     onMessage,
     setActiveView,
     setCurrentContext,
-    setEditingConnectionId,
+    setEditingConnectionName,
     setConnections,
   ]);
 

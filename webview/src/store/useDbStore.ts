@@ -3,7 +3,6 @@ import { create } from "zustand";
 // --- Types (mirrored from extension) ---
 
 export interface ConnectionConfig {
-  id: string;
   name: string;
   type: "postgresql" | "mssql" | "sqlite" | "mysql";
   host?: string;
@@ -50,7 +49,7 @@ export interface Tab {
   id: string;
   title: string;
   viewType: ViewType;
-  connectionId?: string;
+  connectionName?: string;
   schema?: string;
   table?: string;
 }
@@ -82,19 +81,19 @@ interface DbStore {
   setActiveView: (view: ViewType) => void;
 
   // Connection form
-  editingConnectionId: string | null;
-  setEditingConnectionId: (id: string | null) => void;
+  editingConnectionName: string | null;
+  setEditingConnectionName: (name: string | null) => void;
 
   // Connections
   connections: ConnectionConfig[];
   setConnections: (connections: ConnectionConfig[]) => void;
 
   // Current view context
-  currentConnectionId: string | null;
+  currentConnectionName: string | null;
   currentSchema: string | null;
   currentTable: string | null;
   setCurrentContext: (
-    connectionId: string,
+    connectionName: string,
     schema?: string,
     table?: string,
   ) => void;
@@ -123,20 +122,20 @@ export const useDbStore = create<DbStore>((set) => ({
   setActiveView: (view) => set({ activeView: view }),
 
   // Connection form
-  editingConnectionId: null,
-  setEditingConnectionId: (id) => set({ editingConnectionId: id }),
+  editingConnectionName: null,
+  setEditingConnectionName: (name) => set({ editingConnectionName: name }),
 
   // Connections
   connections: [],
   setConnections: (connections) => set({ connections }),
 
   // Context
-  currentConnectionId: null,
+  currentConnectionName: null,
   currentSchema: null,
   currentTable: null,
-  setCurrentContext: (connectionId, schema, table) =>
+  setCurrentContext: (connectionName, schema, table) =>
     set({
-      currentConnectionId: connectionId,
+      currentConnectionName: connectionName,
       currentSchema: schema ?? null,
       currentTable: table ?? null,
     }),

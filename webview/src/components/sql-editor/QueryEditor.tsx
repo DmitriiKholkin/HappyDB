@@ -14,7 +14,7 @@ interface QueryHistoryItem {
 
 export const QueryEditor: React.FC = () => {
   const { postMessage, onMessage } = useVscodeApi();
-  const connectionId = useDbStore((s) => s.currentConnectionId);
+  const connectionName = useDbStore((s) => s.currentConnectionName);
   const queryState = useDbStore((s) => s.queryState);
   const setQueryState = useDbStore((s) => s.setQueryState);
 
@@ -97,18 +97,18 @@ export const QueryEditor: React.FC = () => {
   const handleExecute = useCallback(
     (sqlToRun?: string) => {
       const execSql = sqlToRun || sql;
-      if (!connectionId || !execSql.trim()) {
+      if (!connectionName || !execSql.trim()) {
         return;
       }
       setQueryState({ loading: true, error: null, sql: execSql });
       setSuccessMessage(null);
       postMessage({
         type: "query",
-        connectionId,
+        connectionName,
         sql: execSql.trim(),
       });
     },
-    [connectionId, sql, postMessage, setQueryState],
+    [connectionName, sql, postMessage, setQueryState],
   );
 
   const handleExecuteSelection = useCallback(() => {
@@ -329,7 +329,7 @@ export const QueryEditor: React.FC = () => {
     navigator.clipboard.writeText(inserts).catch(() => {});
   };
 
-  if (!connectionId) {
+  if (!connectionName) {
     return (
       <div className="welcome">
         <p>No connection selected.</p>

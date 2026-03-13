@@ -32,12 +32,12 @@ export class ConnectionTreeProvider
 
     switch (element.itemType) {
       case "connection-connected":
-        return this.getSchemaNodes(element.data.connectionId);
+        return this.getSchemaNodes(element.data.connectionName);
       case "connection-disconnected":
         return [];
       case "schema":
         return this.getCategoryNodes(
-          element.data.connectionId,
+          element.data.connectionName,
           element.data.schema!,
         );
       case "category":
@@ -50,7 +50,7 @@ export class ConnectionTreeProvider
   private getConnectionNodes(): DbTreeItem[] {
     const connections = this.connectionManager.getConnections();
     return connections.map((conn) => {
-      const isConnected = this.connectionManager.isConnected(conn.id);
+      const isConnected = this.connectionManager.isConnected(conn.name);
       const itemType: DbTreeItemType = isConnected
         ? "connection-connected"
         : "connection-disconnected";
@@ -61,7 +61,7 @@ export class ConnectionTreeProvider
       const item = new DbTreeItem(
         this.getConnectionLabel(conn),
         itemType,
-        { connectionId: conn.id },
+        { connectionName: conn.name },
         state,
       );
       item.description = conn.type;
@@ -90,7 +90,7 @@ export class ConnectionTreeProvider
           new DbTreeItem(
             schema,
             "schema",
-            { connectionId, schema },
+            { connectionName: connectionId, schema },
             vscode.TreeItemCollapsibleState.Collapsed,
           ),
       );
@@ -107,26 +107,26 @@ export class ConnectionTreeProvider
       new DbTreeItem(
         "Tables",
         "category",
-        { connectionId, schema, name: "tables" },
+        { connectionName: connectionId, schema, name: "tables" },
         vscode.TreeItemCollapsibleState.Collapsed,
       ),
       new DbTreeItem(
         "Views",
         "category",
-        { connectionId, schema, name: "views" },
+        { connectionName: connectionId, schema, name: "views" },
         vscode.TreeItemCollapsibleState.Collapsed,
       ),
       new DbTreeItem(
         "Functions",
         "category",
-        { connectionId, schema, name: "functions" },
+        { connectionName: connectionId, schema, name: "functions" },
         vscode.TreeItemCollapsibleState.Collapsed,
       ),
     ];
   }
 
   private async getObjectNodes(element: DbTreeItem): Promise<DbTreeItem[]> {
-    const { connectionId, schema, name: category } = element.data;
+    const { connectionName: connectionId, schema, name: category } = element.data;
     const adapter = this.connectionManager.getAdapter(connectionId);
     if (!adapter || !schema || !category) {
       return [];
@@ -144,7 +144,7 @@ export class ConnectionTreeProvider
               new DbTreeItem(
                 n,
                 "table",
-                { connectionId, schema, name: n },
+                { connectionName: connectionId, schema, name: n },
                 vscode.TreeItemCollapsibleState.None,
               ),
           );
@@ -156,7 +156,7 @@ export class ConnectionTreeProvider
               new DbTreeItem(
                 n,
                 "view",
-                { connectionId, schema, name: n },
+                { connectionName: connectionId, schema, name: n },
                 vscode.TreeItemCollapsibleState.None,
               ),
           );
@@ -168,7 +168,7 @@ export class ConnectionTreeProvider
               new DbTreeItem(
                 r.name,
                 "function",
-                { connectionId, schema, name: r.name, type: r.type },
+                { connectionName: connectionId, schema, name: r.name, type: r.type },
                 vscode.TreeItemCollapsibleState.None,
               ),
           );

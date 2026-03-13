@@ -21,7 +21,7 @@ type StructureTab = "columns" | "indexes" | "foreignKeys" | "ddl";
 
 export const TableStructure: React.FC = () => {
   const { postMessage, onMessage } = useVscodeApi();
-  const connectionId = useDbStore((s) => s.currentConnectionId);
+  const connectionName = useDbStore((s) => s.currentConnectionName);
   const schema = useDbStore((s) => s.currentSchema);
   const table = useDbStore((s) => s.currentTable);
 
@@ -34,7 +34,7 @@ export const TableStructure: React.FC = () => {
 
   // Fetch structure data
   useEffect(() => {
-    if (!connectionId || !schema || !table) {
+    if (!connectionName || !schema || !table) {
       return;
     }
     setLoading(true);
@@ -42,16 +42,16 @@ export const TableStructure: React.FC = () => {
     // Request table columns via fetchTable (page 0, size 0 — just columns)
     postMessage({
       type: "fetchTable",
-      connectionId,
+      connectionName,
       schema,
       table,
       page: 0,
       pageSize: 1,
     });
-    postMessage({ type: "getTableDdl", connectionId, schema, table });
-    postMessage({ type: "getTableIndexes", connectionId, schema, table });
-    postMessage({ type: "getTableForeignKeys", connectionId, schema, table });
-  }, [connectionId, schema, table, postMessage]);
+    postMessage({ type: "getTableDdl", connectionName, schema, table });
+    postMessage({ type: "getTableIndexes", connectionName, schema, table });
+    postMessage({ type: "getTableForeignKeys", connectionName, schema, table });
+  }, [connectionName, schema, table, postMessage]);
 
   // Listen for data
   useEffect(() => {
@@ -73,7 +73,7 @@ export const TableStructure: React.FC = () => {
     });
   }, [onMessage]);
 
-  if (!connectionId || !table) {
+  if (!connectionName || !table) {
     return (
       <div className="welcome">
         <p>No table selected.</p>

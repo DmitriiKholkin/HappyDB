@@ -14,23 +14,23 @@ import type {
 
 export interface ConnectMessage {
   type: "connect";
-  connectionId: string;
+  connectionName: string;
 }
 
 export interface DisconnectMessage {
   type: "disconnect";
-  connectionId: string;
+  connectionName: string;
 }
 
 export interface QueryMessage {
   type: "query";
-  connectionId: string;
+  connectionName: string;
   sql: string;
 }
 
 export interface FetchTableMessage {
   type: "fetchTable";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
   page: number;
@@ -41,7 +41,7 @@ export interface FetchTableMessage {
 
 export interface UpdateRowMessage {
   type: "updateRow";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
   pk: PkMap;
@@ -50,7 +50,7 @@ export interface UpdateRowMessage {
 
 export interface InsertRowMessage {
   type: "insertRow";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
   row: RowChanges;
@@ -58,7 +58,7 @@ export interface InsertRowMessage {
 
 export interface DeleteRowMessage {
   type: "deleteRow";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
   pk: PkMap;
@@ -66,18 +66,19 @@ export interface DeleteRowMessage {
 
 export interface GetSchemaMessage {
   type: "getSchema";
-  connectionId: string;
+  connectionName: string;
 }
 
 export interface SaveConnectionMessage {
   type: "saveConnection";
   config: ConnectionConfig;
   password?: string;
+  originalName?: string;
 }
 
 export interface DeleteConnectionMessage {
   type: "deleteConnection";
-  connectionId: string;
+  connectionName: string;
 }
 
 export interface TestConnectionMessage {
@@ -92,21 +93,21 @@ export interface GetConnectionsMessage {
 
 export interface GetTableDdlMessage {
   type: "getTableDdl";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
 }
 
 export interface GetTableIndexesMessage {
   type: "getTableIndexes";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
 }
 
 export interface GetTableForeignKeysMessage {
   type: "getTableForeignKeys";
-  connectionId: string;
+  connectionName: string;
   schema: string;
   table: string;
 }
@@ -198,7 +199,7 @@ export interface ErrorMessage {
 export interface InitMessage {
   type: "init";
   view: "connectionForm" | "tableView" | "queryEditor" | "tableStructure";
-  connectionId?: string;
+  connectionName?: string;
   schema?: string;
   table?: string;
   initialSql?: string;

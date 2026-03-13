@@ -25,7 +25,7 @@ interface FilterState {
 
 export const DataGrid: React.FC = () => {
   const { postMessage, onMessage } = useVscodeApi();
-  const connectionId = useDbStore((s) => s.currentConnectionId);
+  const connectionName = useDbStore((s) => s.currentConnectionName);
   const schema = useDbStore((s) => s.currentSchema);
   const table = useDbStore((s) => s.currentTable);
   const tableState = useDbStore((s) => s.tableState);
@@ -47,7 +47,7 @@ export const DataGrid: React.FC = () => {
 
   const fetchData = useCallback(
     (page = 0) => {
-      if (!connectionId || !schema || !table) {
+      if (!connectionName || !schema || !table) {
         return;
       }
       setTableState({ loading: true });
@@ -65,7 +65,7 @@ export const DataGrid: React.FC = () => {
 
       postMessage({
         type: "fetchTable",
-        connectionId,
+        connectionName,
         schema,
         table,
         page,
@@ -77,7 +77,7 @@ export const DataGrid: React.FC = () => {
       });
     },
     [
-      connectionId,
+      connectionName,
       schema,
       table,
       tableState.pageSize,
@@ -251,7 +251,7 @@ export const DataGrid: React.FC = () => {
 
       postMessage({
         type: "updateRow",
-        connectionId,
+        connectionName,
         schema,
         table,
         pk,
@@ -263,7 +263,7 @@ export const DataGrid: React.FC = () => {
     for (const newRow of newRows) {
       postMessage({
         type: "insertRow",
-        connectionId,
+        connectionName,
         schema,
         table,
         row: newRow,
@@ -323,7 +323,7 @@ export const DataGrid: React.FC = () => {
         pk[col] = row[col];
       }
 
-      postMessage({ type: "deleteRow", connectionId, schema, table, pk });
+      postMessage({ type: "deleteRow", connectionName, schema, table, pk });
     }
 
     setStatusMessage(`Deleting ${selectedRows.size} row(s)...`);
@@ -408,7 +408,7 @@ export const DataGrid: React.FC = () => {
     setTableState({ pageSize: newSize, page: 0 });
   };
 
-  if (!connectionId || !table) {
+  if (!connectionName || !table) {
     return (
       <div className="welcome">
         <p>No table selected.</p>

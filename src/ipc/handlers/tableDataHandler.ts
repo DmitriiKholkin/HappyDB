@@ -23,9 +23,9 @@ export function registerTableDataHandlers(
   >();
 
   handlers.set("fetchTable", async (msg) => {
-    const { connectionId, schema, table, page, pageSize, sort, filters } =
+    const { connectionName, schema, table, page, pageSize, sort, filters } =
       msg as FetchTableMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -51,9 +51,9 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("updateRow", async (msg) => {
-    const { connectionId, schema, table, pk, changes } =
+    const { connectionName, schema, table, pk, changes } =
       msg as UpdateRowMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -67,8 +67,8 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("insertRow", async (msg) => {
-    const { connectionId, schema, table, row } = msg as InsertRowMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, schema, table, row } = msg as InsertRowMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -81,8 +81,8 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("deleteRow", async (msg) => {
-    const { connectionId, schema, table, pk } = msg as DeleteRowMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, schema, table, pk } = msg as DeleteRowMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -95,8 +95,8 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("getTableDdl", async (msg) => {
-    const { connectionId, schema, table } = msg as GetTableDdlMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, schema, table } = msg as GetTableDdlMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -110,8 +110,8 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("getTableIndexes", async (msg) => {
-    const { connectionId, schema, table } = msg as GetTableIndexesMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, schema, table } = msg as GetTableIndexesMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -125,8 +125,8 @@ export function registerTableDataHandlers(
   });
 
   handlers.set("getTableForeignKeys", async (msg) => {
-    const { connectionId, schema, table } = msg as GetTableForeignKeysMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, schema, table } = msg as GetTableForeignKeysMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }

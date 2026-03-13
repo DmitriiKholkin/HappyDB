@@ -22,7 +22,7 @@ export function registerCommands(
     vscode.commands.registerCommand(
       "happydb.editConnection",
       (item: DbTreeItem) => {
-        editorProvider.openConnectionForm(item.data.connectionId);
+        editorProvider.openConnectionForm(item.data.connectionName);
       },
     ),
   );
@@ -34,14 +34,14 @@ export function registerCommands(
       async (item: DbTreeItem) => {
         const conn = connectionManager
           .getConnections()
-          .find((c) => c.id === item.data.connectionId);
+          .find((c) => c.name === item.data.connectionName);
         const answer = await vscode.window.showWarningMessage(
-          `Delete connection "${conn?.name || item.data.connectionId}"?`,
+          `Delete connection "${conn?.name || item.data.connectionName}"?`,
           { modal: true },
           "Delete",
         );
         if (answer === "Delete") {
-          await connectionManager.deleteConnection(item.data.connectionId);
+          await connectionManager.deleteConnection(item.data.connectionName);
           vscode.window.showInformationMessage("Connection deleted.");
         }
       },
@@ -60,7 +60,7 @@ export function registerCommands(
               title: `Connecting to ${item.label}...`,
             },
             async () => {
-              await connectionManager.connect(item.data.connectionId);
+              await connectionManager.connect(item.data.connectionName);
             },
           );
           vscode.window.showInformationMessage(`Connected to ${item.label}`);
@@ -78,7 +78,7 @@ export function registerCommands(
     vscode.commands.registerCommand(
       "happydb.disconnect",
       async (item: DbTreeItem) => {
-        await connectionManager.disconnect(item.data.connectionId);
+        await connectionManager.disconnect(item.data.connectionName);
         vscode.window.showInformationMessage(`Disconnected from ${item.label}`);
       },
     ),
@@ -95,7 +95,7 @@ export function registerCommands(
   context.subscriptions.push(
     vscode.commands.registerCommand("happydb.openTable", (item: DbTreeItem) => {
       editorProvider.openTableView(
-        item.data.connectionId,
+        item.data.connectionName,
         item.data.schema || "public",
         item.data.name || (item.label as string),
       );
@@ -108,7 +108,7 @@ export function registerCommands(
       "happydb.openStructure",
       (item: DbTreeItem) => {
         editorProvider.openTableStructure(
-          item.data.connectionId,
+          item.data.connectionName,
           item.data.schema || "public",
           item.data.name || (item.label as string),
         );
@@ -119,7 +119,7 @@ export function registerCommands(
   // New SQL Query
   context.subscriptions.push(
     vscode.commands.registerCommand("happydb.newQuery", (item: DbTreeItem) => {
-      editorProvider.openQueryEditor(item.data.connectionId);
+      editorProvider.openQueryEditor(item.data.connectionName);
     }),
   );
 
@@ -131,7 +131,7 @@ export function registerCommands(
         if (item.itemType === "table" || item.itemType === "view") {
           vscode.commands.executeCommand("happydb.openTable", item);
         } else if (item.itemType === "function") {
-          const adapter = connectionManager.getAdapter(item.data.connectionId);
+          const adapter = connectionManager.getAdapter(item.data.connectionName);
           if (!adapter) {
             vscode.window.showErrorMessage("Not connected to database");
             return;
@@ -149,7 +149,11 @@ export function registerCommands(
                   item.data.name || (item.label as string),
                   item.data.type || "function",
                 );
-                editorProvider.openQueryEditor(item.data.connectionId, ddl);
+                editorProvider.openQueryEditor(
+                  item.data.connectionName,
+                  ddl,
+                  item.data.name || (item.label as string),
+                );
               },
             );
           } catch (err) {
@@ -167,7 +171,7 @@ export function registerCommands(
     vscode.commands.registerCommand(
       "happydb.showViewCode",
       async (item: DbTreeItem) => {
-        const adapter = connectionManager.getAdapter(item.data.connectionId);
+        const adapter = connectionManager.getAdapter(item.data.connectionName);
         if (!adapter) {
           vscode.window.showErrorMessage("Not connected to database");
           return;
@@ -184,7 +188,11 @@ export function registerCommands(
                 item.data.schema || "public",
                 item.data.name || (item.label as string),
               );
-              editorProvider.openQueryEditor(item.data.connectionId, ddl);
+              editorProvider.openQueryEditor(
+                item.data.connectionName,
+                ddl,
+                item.data.name || (item.label as string),
+              );
             },
           );
         } catch (err) {

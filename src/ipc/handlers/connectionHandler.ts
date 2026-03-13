@@ -22,22 +22,24 @@ export function registerConnectionHandlers(
   });
 
   handlers.set("saveConnection", async (msg) => {
-    const { config, password } = msg as SaveConnectionMessage;
-    const existing = connectionManager
-      .getConnections()
-      .find((c) => c.id === config.id);
-    if (existing) {
-      await connectionManager.updateConnection(config, password);
-    } else {
-      await connectionManager.addConnection(config, password);
+    const { config, password, originalName } = msg as SaveConnectionMessage;
+    
+    try {
+      if (originalName) {
+        await connectionManager.updateConnection(originalName, config, password);
+      } else {
+        await connectionManager.addConnection(config, password);
+      }
+      const updatedConnections = connectionManager.getConnections();
+      return { type: "connectionsList", connections: updatedConnections };
+    } catch (err) {
+      return { type: "error", message: (err as Error).message };
     }
-    const connections = connectionManager.getConnections();
-    return { type: "connectionsList", connections };
   });
 
   handlers.set("deleteConnection", async (msg) => {
-    const { connectionId } = msg as DeleteConnectionMessage;
-    await connectionManager.deleteConnection(connectionId);
+    const { connectionName } = msg as DeleteConnectionMessage;
+    await connectionManager.deleteConnection(connectionName);
     const connections = connectionManager.getConnections();
     return { type: "connectionsList", connections };
   });
@@ -57,14 +59,14 @@ export function registerConnectionHandlers(
   });
 
   handlers.set("connect", async (msg) => {
-    const { connectionId } = msg as ConnectMessage;
+    const { connectionName } = msg as ConnectMessage;
     try {
-      await connectionManager.connect(connectionId);
-      return { type: "connectionStatus", id: connectionId, status: "ok" };
+      await connectionManager.connect(connectionName);
+      return { type: "connectionStatus", id: connectionName, status: "ok" };
     } catch (err) {
       return {
         type: "connectionStatus",
-        id: connectionId,
+        id: connectionName,
         status: "error",
         error: (err as Error).message,
       };
@@ -72,9 +74,9 @@ export function registerConnectionHandlers(
   });
 
   handlers.set("disconnect", async (msg) => {
-    const { connectionId } = msg as DisconnectMessage;
-    await connectionManager.disconnect(connectionId);
-    return { type: "connectionStatus", id: connectionId, status: "ok" };
+    const { connectionName } = msg as DisconnectMessage;
+    await connectionManager.disconnect(connectionName);
+    return { type: "connectionStatus", id: connectionName, status: "ok" };
   });
 
   return handlers;

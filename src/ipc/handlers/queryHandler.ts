@@ -16,8 +16,8 @@ export function registerQueryHandlers(
   >();
 
   handlers.set("query", async (msg) => {
-    const { connectionId, sql } = msg as QueryMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, sql } = msg as QueryMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "queryError", message: "Not connected to database" };
     }
@@ -41,8 +41,8 @@ export function registerQueryHandlers(
   });
 
   handlers.set("getSchema", async (msg) => {
-    const { connectionId } = msg as GetSchemaMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName } = msg as GetSchemaMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }
@@ -56,8 +56,8 @@ export function registerQueryHandlers(
   });
 
   handlers.set("getTableDdl", async (msg) => {
-    const { connectionId, schema, table } = msg as GetTableDdlMessage;
-    const adapter = connectionManager.getAdapter(connectionId);
+    const { connectionName, schema, table } = msg as GetTableDdlMessage;
+    const adapter = connectionManager.getAdapter(connectionName);
     if (!adapter) {
       return { type: "error", message: "Not connected to database" };
     }

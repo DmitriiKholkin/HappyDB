@@ -12,11 +12,11 @@ interface TestResult {
 
 export const ConnectionForm: React.FC = () => {
   const { postMessage, onMessage } = useVscodeApi();
-  const editingId = useDbStore((s) => s.editingConnectionId);
+  const editingName = useDbStore((s) => s.editingConnectionName);
   const connections = useDbStore((s) => s.connections);
 
-  const editingConn = editingId
-    ? connections.find((c) => c.id === editingId)
+  const editingConn = editingName
+    ? connections.find((c) => c.name === editingName)
     : null;
 
   const [dbType, setDbType] = useState<DbType>(
@@ -45,6 +45,7 @@ export const ConnectionForm: React.FC = () => {
         type: string;
         success?: boolean;
         error?: string;
+        message?: string;
       };
       if (message.type === "testConnectionResult") {
         setTesting(false);
@@ -52,6 +53,10 @@ export const ConnectionForm: React.FC = () => {
       }
       if (message.type === "connectionsList") {
         setSaving(false);
+      }
+      if (message.type === "error") {
+        setSaving(false);
+        setTestResult({ success: false, error: message.message || message.error });
       }
     });
   }, [onMessage]);
@@ -87,7 +92,6 @@ export const ConnectionForm: React.FC = () => {
 
   const buildConfig = useCallback((): ConnectionConfig => {
     const base = {
-      id: editingId || "",
       name: name || `${dbType} connection`,
       type: dbType,
     };
@@ -107,7 +111,6 @@ export const ConnectionForm: React.FC = () => {
       ssl,
     };
   }, [
-    editingId,
     name,
     dbType,
     host,
@@ -131,16 +134,18 @@ export const ConnectionForm: React.FC = () => {
 
   const handleSave = () => {
     setSaving(true);
+    setTestResult(null); // Clear previous errors
     postMessage({
       type: "saveConnection",
       config: buildConfig(),
       password: dbType !== "sqlite" ? password : undefined,
+      originalName: editingName || undefined,
     });
   };
 
   return (
     <div className="connection-form">
-      <h3>{editingId ? "Edit Connection" : "New Connection"}</h3>
+      <h3>{editingName ? "Edit Connection" : "New Connection"}</h3>
 
       <div className="db-type-selector">
         <button
