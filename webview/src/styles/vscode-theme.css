@@ -567,6 +567,17 @@ textarea::placeholder {
   white-space: pre-wrap;
 }
 
+.query-success {
+  padding: var(--spacing-md);
+  color: var(--success-color);
+  background: rgba(35, 209, 139, 0.08);
+  border-radius: var(--radius);
+  margin: var(--spacing-md) 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* ===== Loading ===== */
 
 .loading {

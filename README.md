@@ -7,7 +7,7 @@
 [![Marketplace](https://img.shields.io/visual-studio-marketplace/v/DmitriiKholkin.happy-db?style=flat-square&label=VS%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.happy-db)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-007ACC?style=flat-square&logo=visualstudiocode)](https://code.visualstudio.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/license-Elastic%20v2-orange?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/license-Elastic%20v2-orange?style=flat-square)](LICENSE.md)
 
 <br/>
 
@@ -120,7 +120,7 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 
 ## 📄 License
 
-This project is licensed under the **[Elastic License 2.0 (ELv2)](LICENSE)**.
+This project is licensed under the **[Elastic License 2.0 (ELv2)](LICENSE.md)**.
 
 You are free to use, modify and distribute the source code for **non-commercial purposes**. Commercial use — including offering the software as a hosted/managed service — is not permitted without explicit written permission from the author.
 

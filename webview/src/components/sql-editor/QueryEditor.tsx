@@ -21,7 +21,8 @@ export const QueryEditor: React.FC = () => {
   const [sql, setSql] = useState(queryState.sql || "");
   const [history, setHistory] = useState<QueryHistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [splitRatio, setSplitRatio] = useState(0.35); // 35% editor, 65% results
+  const [splitRatio, setSplitRatio] = useState(0.35);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Listen for results
@@ -37,6 +38,8 @@ export const QueryEditor: React.FC = () => {
         detail?: string;
       };
 
+      console.log(msg as string);
+
       if (message.type === "queryResult") {
         setQueryState({
           columns: message.columns || [],
@@ -46,6 +49,16 @@ export const QueryEditor: React.FC = () => {
           error: null,
           loading: false,
         });
+
+        // Show success message if no tabular data
+        if (!message.columns || message.columns.length === 0) {
+          setSuccessMessage(
+            message.message || "Query executed successfully.",
+          );
+        } else {
+          setSuccessMessage(null);
+        }
+
         // Add to history
         setHistory((prev) => [
           {
@@ -65,6 +78,7 @@ export const QueryEditor: React.FC = () => {
           error: message.message || "Query failed",
           loading: false,
         });
+        setSuccessMessage(null);
         setHistory((prev) => [
           {
             sql: sql.trim(),
@@ -87,6 +101,7 @@ export const QueryEditor: React.FC = () => {
         return;
       }
       setQueryState({ loading: true, error: null, sql: execSql });
+      setSuccessMessage(null);
       postMessage({
         type: "query",
         connectionId,
@@ -328,7 +343,7 @@ export const QueryEditor: React.FC = () => {
       <div
         style={{
           flex:
-            queryState.columns.length === 0 && !queryState.error
+            queryState.columns.length === 0
               ? "1 1 auto"
               : `0 0 ${splitRatio * 100 - 10}%`,
           display: "flex",
@@ -429,6 +444,10 @@ export const QueryEditor: React.FC = () => {
       {/* Results */}
       {queryState.error && (
         <div className="query-error">{queryState.error}</div>
+      )}
+
+      {successMessage && !queryState.error && (
+        <div className="query-success">{successMessage}</div>
       )}
 
       {queryState.columns.length > 0 && !queryState.error && (
