@@ -34,11 +34,22 @@ export class DbEditorProvider {
             panel.dispose();
           }
         }
-      } else if (e?.type === "update" && e.oldName && e.newName && e.oldName !== e.newName) {
-        // Close all panels associated with the renamed connection
+      } else if (
+        e?.type === "update" &&
+        e.oldName &&
+        e.newName &&
+        e.oldName !== e.newName
+      ) {
+        // Close all panels associated with the renamed connection, except the settings form
         for (const [panel, metadata] of this.panelMetadata.entries()) {
           if (metadata.connectionName === e.oldName) {
-            panel.dispose();
+            if (metadata.type === "connectionForm") {
+              // Update metadata with new name so it stays synced
+              metadata.connectionName = e.newName;
+              metadata.name = e.newName;
+            } else {
+              panel.dispose();
+            }
           }
         }
       }

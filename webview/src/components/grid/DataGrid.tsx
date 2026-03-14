@@ -148,7 +148,11 @@ export const DataGrid: React.FC = () => {
     if (!sort || sort.column !== colName) {
       return null;
     }
-    return sort.direction === "asc" ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />;
+    return sort.direction === "asc" ? (
+      <Icon name="chevron-up" />
+    ) : (
+      <Icon name="chevron-down" />
+    );
   };
 
   // --- Pagination ---
@@ -221,6 +225,7 @@ export const DataGrid: React.FC = () => {
     if (pkCols.length === 0 && pendingChanges.length > 0) {
       setStatusMessage(
         "Cannot apply changes: no primary key detected for this table.",
+        true,
       );
       return;
     }
@@ -431,17 +436,31 @@ export const DataGrid: React.FC = () => {
 
         {hasChanges && (
           <>
-            <button className="btn btn-primary btn-sm" onClick={handleApply} type="button">
-              <Icon name="check" /> Apply ({pendingChanges.length + newRows.length})
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={handleApply}
+              type="button"
+            >
+              <Icon name="check" /> Apply (
+              {pendingChanges.length + newRows.length})
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleRevert} type="button">
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={handleRevert}
+              type="button"
+            >
               <Icon name="discard" /> Revert
             </button>
             <div className="toolbar-separator" />
           </>
         )}
 
-        <button className="btn btn-icon" onClick={handleAddRow} title="Add row" type="button">
+        <button
+          className="btn btn-icon"
+          onClick={handleAddRow}
+          title="Add row"
+          type="button"
+        >
           <Icon name="add" />
         </button>
         <button
@@ -622,16 +641,16 @@ export const DataGrid: React.FC = () => {
                 {newRows.map((newRow, nri) => (
                   <tr key={`new-${nri}`} className="new-row">
                     <td style={{ textAlign: "center" }}>
-                        <button
-                          className="btn-inline-delete"
-                          onClick={() =>
-                            setNewRows((prev) => prev.filter((_, i) => i !== nri))
-                          }
-                          title="Remove new row"
-                          type="button"
-                        >
-                          <Icon name="close" />
-                        </button>
+                      <button
+                        className="btn-inline-delete"
+                        onClick={() =>
+                          setNewRows((prev) => prev.filter((_, i) => i !== nri))
+                        }
+                        title="Remove new row"
+                        type="button"
+                      >
+                        <Icon name="close" />
+                      </button>
                     </td>
                     <td
                       className="row-number"

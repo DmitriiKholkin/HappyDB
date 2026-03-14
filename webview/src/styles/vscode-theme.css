@@ -111,66 +111,6 @@ body {
   overflow: hidden;
 }
 
-.tab-bar {
-  display: flex;
-  align-items: center;
-  background: var(--bg-header);
-  border-bottom: 1px solid var(--border-color);
-  min-height: 36px;
-  overflow-x: auto;
-  flex-shrink: 0;
-}
-
-.tab-bar::-webkit-scrollbar {
-  height: 3px;
-}
-
-.tab-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  color: var(--fg-secondary);
-  font-size: var(--font-size);
-  font-family: var(--font-family);
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  transition:
-    color 0.15s,
-    border-color 0.15s;
-}
-
-.tab-item:hover {
-  color: var(--fg-primary);
-}
-
-.tab-item.active {
-  color: var(--fg-primary);
-  border-bottom-color: var(--accent-color);
-}
-
-.tab-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border: none;
-  background: transparent;
-  color: var(--fg-secondary);
-  cursor: pointer;
-  border-radius: 3px;
-  font-size: 12px;
-}
-
-.tab-close:hover {
-  background: var(--bg-hover);
-  color: var(--fg-primary);
-}
-
 .content-area {
   flex: 1;
   overflow: auto;
@@ -268,13 +208,8 @@ textarea::placeholder {
   background: var(--vscode-button-secondaryHoverBackground, #45494e);
 }
 
-.btn-danger {
-  background: var(--danger-color);
-  color: #fff;
-}
-
-.btn-danger:hover:not(:disabled) {
-  opacity: 0.9;
+.btn-secondary:hover:not(:disabled) {
+  background: var(--vscode-button-secondaryHoverBackground, #45494e);
 }
 
 .btn-icon {
@@ -421,6 +356,11 @@ textarea::placeholder {
   background: rgba(244, 71, 71, 0.08);
 }
 
+.status-bar.success {
+  color: var(--success-color);
+  background: rgba(35, 209, 139, 0.1);
+}
+
 /* ===== Welcome ===== */
 
 .welcome {
@@ -493,25 +433,6 @@ textarea::placeholder {
   background: var(--bg-hover);
 }
 
-.test-result {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius);
-  margin-top: var(--spacing-sm);
-  font-size: 12px;
-}
-
-.test-result.success {
-  background: rgba(35, 209, 139, 0.1);
-  color: var(--success-color);
-  border: 1px solid var(--success-color);
-}
-
-.test-result.error {
-  background: rgba(244, 71, 71, 0.1);
-  color: var(--danger-color);
-  border: 1px solid var(--danger-color);
-}
-
 /* ===== SQL Editor ===== */
 
 .sql-editor-container {
@@ -554,28 +475,6 @@ textarea::placeholder {
   font-size: 12px;
   color: var(--fg-secondary);
   border-bottom: 1px solid var(--border-color);
-}
-
-.query-error {
-  padding: var(--spacing-md);
-  color: var(--danger-color);
-  background: rgba(244, 71, 71, 0.08);
-  border-radius: var(--radius);
-  margin: var(--spacing-md) 0;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  white-space: pre-wrap;
-}
-
-.query-success {
-  padding: var(--spacing-md);
-  color: var(--success-color);
-  background: rgba(35, 209, 139, 0.08);
-  border-radius: var(--radius);
-  margin: var(--spacing-md) 0;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
 }
 
 /* ===== Loading ===== */

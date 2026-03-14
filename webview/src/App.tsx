@@ -21,7 +21,9 @@ const App: React.FC = () => {
   const activeView = useDbStore((s) => s.activeView);
   const setActiveView = useDbStore((s) => s.setActiveView);
   const setCurrentContext = useDbStore((s) => s.setCurrentContext);
-  const setEditingConnectionName = useDbStore((s) => s.setEditingConnectionName);
+  const setEditingConnectionName = useDbStore(
+    (s) => s.setEditingConnectionName,
+  );
   const setConnections = useDbStore((s) => s.setConnections);
   const statusMessage = useDbStore((s) => s.statusMessage);
   const isStatusError = useDbStore((s) => s.isStatusError);
@@ -71,7 +73,7 @@ const App: React.FC = () => {
         {activeView === "tableStructure" && <TableStructure />}
       </div>
       {statusMessage && (
-        <div className={`status-bar ${isStatusError ? "error" : ""}`}>
+        <div className={`status-bar ${isStatusError ? "error" : "success"}`}>
           <span>{statusMessage}</span>
         </div>
       )}

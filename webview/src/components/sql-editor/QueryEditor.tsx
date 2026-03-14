@@ -21,12 +21,12 @@ export const QueryEditor: React.FC = () => {
   const connectionName = useDbStore((s) => s.currentConnectionName);
   const queryState = useDbStore((s) => s.queryState);
   const setQueryState = useDbStore((s) => s.setQueryState);
+  const setStatusMessage = useDbStore((s) => s.setStatusMessage);
 
   const [sql, setSql] = useState(queryState.sql || "");
   const [history, setHistory] = useState<QueryHistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [splitRatio, setSplitRatio] = useState(0.35);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Listen for results
@@ -55,9 +55,9 @@ export const QueryEditor: React.FC = () => {
         });
 
         if (!message.columns || message.columns.length === 0) {
-          setSuccessMessage(message.message || "Query executed successfully.");
+          setStatusMessage(message.message || "Query executed successfully.", false);
         } else {
-          setSuccessMessage(null);
+          setStatusMessage(null);
         }
 
         setHistory((prev) => [
@@ -78,7 +78,7 @@ export const QueryEditor: React.FC = () => {
           error: message.message || "Query failed",
           loading: false,
         });
-        setSuccessMessage(null);
+        setStatusMessage(message.message || "Query failed", true);
         setHistory((prev) => [
           {
             sql: sql.trim(),
@@ -92,17 +92,17 @@ export const QueryEditor: React.FC = () => {
         ]);
       }
     });
-  }, [onMessage, setQueryState, sql]);
+  }, [onMessage, setQueryState, sql, setStatusMessage]);
 
   const handleExecute = useCallback(
     (sqlToRun?: string) => {
       const execSql = sqlToRun || sql;
       if (!connectionName || !execSql.trim()) return;
       setQueryState({ loading: true, error: null, sql: execSql });
-      setSuccessMessage(null);
+      setStatusMessage(null);
       postMessage({ type: "query", connectionName, sql: execSql.trim() });
     },
-    [connectionName, sql, postMessage, setQueryState],
+    [connectionName, sql, postMessage, setQueryState, setStatusMessage],
   );
 
   const handleExecuteSelection = useCallback(() => {
@@ -351,13 +351,6 @@ export const QueryEditor: React.FC = () => {
       )}
 
       {/* Results */}
-      {queryState.error && (
-        <div className="query-error">{queryState.error}</div>
-      )}
-
-      {successMessage && !queryState.error && (
-        <div className="query-success">{successMessage}</div>
-      )}
 
       {queryState.columns.length > 0 && !queryState.error && (
         <div

@@ -1,20 +1,17 @@
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useVscodeApi } from "../../hooks/useVscodeApi";
 import { type ConnectionConfig, useDbStore } from "../../store/useDbStore";
 import { Icon } from "../common/Icon";
 
 type DbType = "postgresql" | "mssql" | "sqlite" | "mysql";
 
-interface TestResult {
-  success: boolean;
-  error?: string;
-}
-
 export const ConnectionForm: React.FC = () => {
   const { postMessage, onMessage } = useVscodeApi();
   const editingName = useDbStore((s) => s.editingConnectionName);
   const connections = useDbStore((s) => s.connections);
+  const setStatusMessage = useDbStore((s) => s.setStatusMessage);
+  const setEditingConnectionName = useDbStore((s) => s.setEditingConnectionName);
 
   const editingConn = editingName
     ? connections.find((c) => c.name === editingName)
@@ -35,9 +32,9 @@ export const ConnectionForm: React.FC = () => {
   const [ssl, setSsl] = useState(editingConn?.ssl || false);
   const [filePath, setFilePath] = useState(editingConn?.filePath || "");
 
-  const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
+  const isSaving = useRef(false);
 
   // Listen for test results
   useEffect(() => {
@@ -50,17 +47,31 @@ export const ConnectionForm: React.FC = () => {
       };
       if (message.type === "testConnectionResult") {
         setTesting(false);
-        setTestResult({ success: message.success!, error: message.error });
+        setStatusMessage(
+          message.success
+            ? "Connection successful!"
+            : message.error || "Connection failed",
+          !message.success,
+        );
       }
       if (message.type === "connectionsList") {
+        if (isSaving.current) {
+          setStatusMessage("Connections updated", false);
+          setEditingConnectionName(name);
+        }
         setSaving(false);
+        isSaving.current = false;
       }
       if (message.type === "error") {
         setSaving(false);
-        setTestResult({ success: false, error: message.message || message.error });
+        isSaving.current = false;
+        setStatusMessage(
+          message.message || message.error || "Unknown error",
+          true,
+        );
       }
     });
-  }, [onMessage]);
+  }, [onMessage, setStatusMessage, name, setEditingConnectionName]);
 
   // Sync state with editingConn when it loads
   useEffect(() => {
@@ -111,21 +122,11 @@ export const ConnectionForm: React.FC = () => {
       password: password || undefined,
       ssl,
     };
-  }, [
-    name,
-    dbType,
-    host,
-    port,
-    database,
-    username,
-    password,
-    ssl,
-    filePath,
-  ]);
+  }, [name, dbType, host, port, database, username, password, ssl, filePath]);
 
   const handleTest = () => {
     setTesting(true);
-    setTestResult(null);
+    setStatusMessage(null);
     postMessage({
       type: "testConnection",
       config: buildConfig(),
@@ -135,7 +136,8 @@ export const ConnectionForm: React.FC = () => {
 
   const handleSave = () => {
     setSaving(true);
-    setTestResult(null); // Clear previous errors
+    isSaving.current = true;
+    setStatusMessage(null); // Clear previous errors
     postMessage({
       type: "saveConnection",
       config: buildConfig(),
@@ -264,34 +266,21 @@ export const ConnectionForm: React.FC = () => {
         </>
       )}
 
-      {testResult && (
-        <div
-          className={`test-result ${testResult.success ? "success" : "error"}`}
-        >
-          {testResult.success ? (
-            <>
-              <Icon name="pass" /> Connection successful!
-            </>
-          ) : (
-            <>
-              <Icon name="error" /> {testResult.error || "Connection failed"}
-            </>
-          )}
-        </div>
-      )}
-
       <div className="btn-group">
         <button
           className="btn btn-secondary"
           onClick={handleTest}
           disabled={testing}
+          type="button"
         >
           {testing ? (
             <>
               <span className="spinner" /> Testing...
             </>
           ) : (
-            "🔌 Test Connection"
+            <>
+              <Icon name="plug" /> Test Connection
+            </>
           )}
         </button>
         <button
@@ -300,7 +289,9 @@ export const ConnectionForm: React.FC = () => {
           disabled={saving}
           type="button"
         >
-          {saving ? "Saving..." : (
+          {saving ? (
+            "Saving..."
+          ) : (
             <>
               <Icon name="save" /> Save
             </>
