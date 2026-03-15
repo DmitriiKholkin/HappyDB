@@ -34,6 +34,7 @@ export class MysqlAdapter implements IDbAdapter {
       password: this.password,
       ssl: this.config.ssl ? { rejectUnauthorized: false } : undefined,
       connectionLimit: 5,
+      connectTimeout: 10000,
     });
     // Verify connection
     const client = await this.pool.getConnection();
@@ -58,7 +59,7 @@ export class MysqlAdapter implements IDbAdapter {
       password: this.password,
       ssl: this.config.ssl ? { rejectUnauthorized: false } : undefined,
       connectionLimit: 1,
-      connectTimeout: 5000,
+      connectTimeout: 10000,
     });
     try {
       const client = await testPool.getConnection();
@@ -155,7 +156,10 @@ export class MysqlAdapter implements IDbAdapter {
     const mapRoutine = (r: any): RoutineObject => ({
       name: r.routine_name,
       schema: r.routine_schema,
-      type: r.routine_type?.toLowerCase() === "procedure" ? "procedure" : "function",
+      type:
+        r.routine_type?.toLowerCase() === "procedure"
+          ? "procedure"
+          : "function",
     });
 
     return {
@@ -205,7 +209,10 @@ export class MysqlAdapter implements IDbAdapter {
     return (result as any[]).map((r) => ({
       name: r.routine_name,
       schema: schema,
-      type: r.routine_type?.toLowerCase() === "procedure" ? "procedure" : "function",
+      type:
+        r.routine_type?.toLowerCase() === "procedure"
+          ? "procedure"
+          : "function",
     }));
   }
 

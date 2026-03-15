@@ -30,6 +30,9 @@ export const ConnectionForm: React.FC = () => {
   const [username, setUsername] = useState(editingConn?.username || "");
   const [password, setPassword] = useState(editingConn?.password || "");
   const [ssl, setSsl] = useState(editingConn?.ssl || false);
+  const [trustServerCertificate, setTrustServerCertificate] = useState(
+    (editingConn as any)?.trustServerCertificate || false,
+  );
   const [filePath, setFilePath] = useState(editingConn?.filePath || "");
 
   const [testing, setTesting] = useState(false);
@@ -91,6 +94,9 @@ export const ConnectionForm: React.FC = () => {
       setUsername(editingConn.username || "");
       setPassword(editingConn.password || "");
       setSsl(editingConn.ssl || false);
+      setTrustServerCertificate(
+        (editingConn as any).trustServerCertificate || false,
+      );
       setFilePath(editingConn.filePath || "");
     }
   }, [editingConn]);
@@ -121,8 +127,21 @@ export const ConnectionForm: React.FC = () => {
       username,
       password: password || undefined,
       ssl,
-    };
-  }, [name, dbType, host, port, database, username, password, ssl, filePath]);
+      trustServerCertificate:
+        dbType === "mssql" ? trustServerCertificate : undefined,
+    } as ConnectionConfig;
+  }, [
+    name,
+    dbType,
+    host,
+    port,
+    database,
+    username,
+    password,
+    ssl,
+    trustServerCertificate,
+    filePath,
+  ]);
 
   const handleTest = () => {
     setTesting(true);
@@ -261,8 +280,24 @@ export const ConnectionForm: React.FC = () => {
               checked={ssl}
               onChange={(e) => setSsl(e.target.checked)}
             />
-            <label htmlFor="ssl">Use SSL</label>
+            <label htmlFor="ssl">
+              {dbType === "mssql" ? "Encrypt (SSL)" : "Use SSL"}
+            </label>
           </div>
+
+          {dbType === "mssql" && (
+            <div className="checkbox-group">
+              <input
+                type="checkbox"
+                id="trustServerCertificate"
+                checked={trustServerCertificate}
+                onChange={(e) => setTrustServerCertificate(e.target.checked)}
+              />
+              <label htmlFor="trustServerCertificate">
+                Trust Server Certificate
+              </label>
+            </div>
+          )}
         </>
       )}
 

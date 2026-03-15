@@ -34,6 +34,8 @@ export class PostgresAdapter implements IDbAdapter {
       password: this.password,
       ssl: this.config.ssl ? { rejectUnauthorized: false } : false,
       max: 5,
+      connectionTimeoutMillis: 10000,
+      statement_timeout: 180000,
     });
     // Verify connection
     const client = await this.pool.connect();
@@ -58,7 +60,7 @@ export class PostgresAdapter implements IDbAdapter {
       password: this.password,
       ssl: this.config.ssl ? { rejectUnauthorized: false } : false,
       max: 1,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000,
     });
     try {
       const client = await testPool.connect();
@@ -446,7 +448,10 @@ export class PostgresAdapter implements IDbAdapter {
       [schema, table],
     );
 
-    if (typeResult.rows.length > 0 && typeResult.rows[0].table_type === "VIEW") {
+    if (
+      typeResult.rows.length > 0 &&
+      typeResult.rows[0].table_type === "VIEW"
+    ) {
       const viewDefResult = await pool.query(
         "SELECT pg_get_viewdef($1::regclass, true) as def",
         [`"${schema}"."${table}"`],

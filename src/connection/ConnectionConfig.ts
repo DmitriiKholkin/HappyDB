@@ -25,7 +25,7 @@ export interface MssqlConnectionConfig extends BaseConnectionConfig {
   port: number;
   database: string;
   username: string;
-  encrypt: boolean;
+  ssl: boolean;
   trustServerCertificate: boolean;
 }
 

@@ -33,11 +33,11 @@ export class MssqlAdapter implements IDbAdapter {
       user: this.config.username,
       password: this.password,
       options: {
-        encrypt: this.config.encrypt ?? true,
+        encrypt: this.config.ssl ?? true,
         trustServerCertificate: this.config.trustServerCertificate ?? true,
       },
       connectionTimeout: 10000,
-      requestTimeout: 30000,
+      requestTimeout: 180000,
     };
   }
 

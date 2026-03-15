@@ -23,7 +23,7 @@ export class SqliteAdapter implements IDbAdapter {
   constructor(public readonly config: SqliteConnectionConfig) {}
 
   async connect(): Promise<void> {
-    this.db = new Database(this.config.filePath);
+    this.db = new Database(this.config.filePath, { timeout: 10000 });
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("foreign_keys = ON");
     this._connected = true;
