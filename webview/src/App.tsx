@@ -14,6 +14,8 @@ interface InitMessage {
   schema?: string;
   table?: string;
   initialSql?: string;
+  pageSize?: number;
+  queryHistoryLimit?: number;
 }
 
 const App: React.FC = () => {
@@ -46,11 +48,31 @@ const App: React.FC = () => {
             const setQueryState = useDbStore.getState().setQueryState;
             setQueryState({ sql: init.initialSql });
           }
+          if (init.pageSize) {
+            useDbStore.getState().setTableState({ pageSize: init.pageSize });
+          }
+          if (init.queryHistoryLimit) {
+            useDbStore.getState()
+              .setQueryHistoryLimit(init.queryHistoryLimit);
+          }
           break;
         }
         case "connectionsList":
           setConnections(message.connections as never);
           break;
+        case "updateSettings": {
+          const { pageSize, queryHistoryLimit } = message as unknown as {
+            pageSize: number;
+            queryHistoryLimit: number;
+          };
+          if (pageSize) {
+            useDbStore.getState().setTableState({ pageSize });
+          }
+          if (queryHistoryLimit) {
+            useDbStore.getState().setQueryHistoryLimit(queryHistoryLimit);
+          }
+          break;
+        }
       }
     });
 

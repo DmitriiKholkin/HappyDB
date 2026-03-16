@@ -110,6 +110,10 @@ interface DbStore {
   schema: DbSchema | null;
   setSchema: (schema: DbSchema | null) => void;
 
+  // Settings
+  queryHistoryLimit: number;
+  setQueryHistoryLimit: (limit: number) => void;
+
   // Status messages
   statusMessage: string | null;
   isStatusError: boolean;
@@ -168,6 +172,10 @@ export const useDbStore = create<DbStore>((set) => ({
   // Schema
   schema: null,
   setSchema: (schema) => set({ schema }),
+
+  // Settings
+  queryHistoryLimit: 50,
+  setQueryHistoryLimit: (limit) => set({ queryHistoryLimit: limit }),
 
   // Status
   statusMessage: null,

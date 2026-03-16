@@ -55,6 +55,26 @@ export class DbEditorProvider {
       }
       this.updateAllTitles();
     });
+
+    // Listen for configuration changes
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (
+        e.affectsConfiguration("happydb.pageSize") ||
+        e.affectsConfiguration("happydb.queryHistoryLimit")
+      ) {
+        const config = vscode.workspace.getConfiguration("happydb");
+        const pageSize = config.get<number>("pageSize", 100);
+        const queryHistoryLimit = config.get<number>("queryHistoryLimit", 50);
+
+        for (const panel of this.panelMetadata.keys()) {
+          this.sendToWebview(panel, {
+            type: "updateSettings",
+            pageSize,
+            queryHistoryLimit,
+          });
+        }
+      }
+    });
   }
 
   private updateAllTitles(): void {
@@ -114,6 +134,12 @@ export class DbEditorProvider {
       type: "init",
       view: "connectionForm",
       connectionName,
+      pageSize: vscode.workspace
+        .getConfiguration("happydb")
+        .get<number>("pageSize", 100),
+      queryHistoryLimit: vscode.workspace
+        .getConfiguration("happydb")
+        .get<number>("queryHistoryLimit", 50),
     });
   }
 
@@ -141,6 +167,12 @@ export class DbEditorProvider {
         connectionName,
         schema,
         table,
+        pageSize: vscode.workspace
+          .getConfiguration("happydb")
+          .get<number>("pageSize", 100),
+        queryHistoryLimit: vscode.workspace
+          .getConfiguration("happydb")
+          .get<number>("queryHistoryLimit", 50),
       },
     );
   }
@@ -171,6 +203,12 @@ export class DbEditorProvider {
         view: "queryEditor",
         connectionName,
         initialSql,
+        pageSize: vscode.workspace
+          .getConfiguration("happydb")
+          .get<number>("pageSize", 100),
+        queryHistoryLimit: vscode.workspace
+          .getConfiguration("happydb")
+          .get<number>("queryHistoryLimit", 50),
       },
     );
   }
@@ -203,6 +241,12 @@ export class DbEditorProvider {
         connectionName,
         schema,
         table,
+        pageSize: vscode.workspace
+          .getConfiguration("happydb")
+          .get<number>("pageSize", 100),
+        queryHistoryLimit: vscode.workspace
+          .getConfiguration("happydb")
+          .get<number>("queryHistoryLimit", 50),
       },
     );
   }
@@ -256,6 +300,14 @@ export class DbEditorProvider {
       // Also send the initial list of connections
       const connections = this.connectionManager.getConnections();
       this.sendToWebview(panel, { type: "connectionsList", connections });
+
+      // Send initial settings
+      const config = vscode.workspace.getConfiguration("happydb");
+      this.sendToWebview(panel, {
+        type: "updateSettings",
+        pageSize: config.get<number>("pageSize", 100),
+        queryHistoryLimit: config.get<number>("queryHistoryLimit", 50),
+      });
     });
 
     // Clean up

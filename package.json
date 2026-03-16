@@ -2,7 +2,7 @@
   "name": "happy-db",
   "displayName": "HappyDB",
   "description": "Full-featured database manager right inside VS Code",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "publisher": "DmitriiKholkin",
   "repository": {
     "type": "git",
@@ -13,7 +13,24 @@
     "vscode": "^1.85.0"
   },
   "categories": [
+    "Data Science",
     "Other"
+  ],
+  "keywords": [
+    "sql",
+    "database",
+    "db",
+    "postgresql",
+    "postgres",
+    "mysql",
+    "sqlite",
+    "mssql",
+    "sql server",
+    "query",
+    "data",
+    "explorer",
+    "database manager",
+    "db client"
   ],
   "activationEvents": [
     "onView:happydb.connectionsView"
@@ -176,7 +193,15 @@
         "happydb.pageSize": {
           "type": "number",
           "default": 100,
-          "description": "Number of rows per page in data grid"
+          "enum": [
+            25,
+            50,
+            100,
+            250,
+            500,
+            1000
+          ],
+          "description": "Number of rows per page in data grid (25, 50, 100, 250, 500, or 1000)"
         },
         "happydb.queryHistoryLimit": {
           "type": "number",

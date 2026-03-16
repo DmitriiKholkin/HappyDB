@@ -22,6 +22,7 @@ export const QueryEditor: React.FC = () => {
   const queryState = useDbStore((s) => s.queryState);
   const setQueryState = useDbStore((s) => s.setQueryState);
   const setStatusMessage = useDbStore((s) => s.setStatusMessage);
+  const queryHistoryLimit = useDbStore((s) => s.queryHistoryLimit);
 
   const [sql, setSql] = useState(queryState.sql || "");
   const [history, setHistory] = useState<QueryHistoryItem[]>([]);
@@ -68,7 +69,7 @@ export const QueryEditor: React.FC = () => {
             rowCount: message.rowCount || 0,
             success: true,
           },
-          ...prev.slice(0, 49),
+          ...prev.slice(0, queryHistoryLimit - 1),
         ]);
       }
       if (message.type === "queryError") {
@@ -88,7 +89,7 @@ export const QueryEditor: React.FC = () => {
             success: false,
             error: message.message,
           },
-          ...prev.slice(0, 49),
+          ...prev.slice(0, queryHistoryLimit - 1),
         ]);
       }
     });

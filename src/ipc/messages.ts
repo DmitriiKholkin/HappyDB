@@ -203,6 +203,14 @@ export interface InitMessage {
   schema?: string;
   table?: string;
   initialSql?: string;
+  pageSize?: number;
+  queryHistoryLimit?: number;
+}
+
+export interface UpdateSettingsMessage {
+  type: "updateSettings";
+  pageSize: number;
+  queryHistoryLimit: number;
 }
 
 export type WebviewMessage =
@@ -217,4 +225,5 @@ export type WebviewMessage =
   | TableIndexesMessage
   | TableForeignKeysMessage
   | ErrorMessage
-  | InitMessage;
+  | InitMessage
+  | UpdateSettingsMessage;
