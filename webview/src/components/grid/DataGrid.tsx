@@ -3,6 +3,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useVscodeApi } from "../../hooks/useVscodeApi";
 import { type ColumnInfo, useDbStore } from "../../store/useDbStore";
 import { Icon } from "../common/Icon";
+import {
+  formatSqlDate,
+  isDateTimeValue,
+  isTimestampDefault,
+} from "../../utils/dateUtils";
 import { CellEditor } from "./CellEditor";
 import { FilterRow } from "./FilterRow";
 
@@ -37,6 +42,7 @@ export const DataGrid: React.FC = () => {
   const [editingCell, setEditingCell] = useState<{
     row: number;
     col: string;
+    isNew?: boolean;
   } | null>(null);
   const [sort, setSort] = useState<SortState | null>(null);
   const [filters, setFilters] = useState<FilterState[]>([]);
@@ -173,17 +179,42 @@ export const DataGrid: React.FC = () => {
   };
 
   // --- Inline editing ---
-  const handleCellDoubleClick = (rowIndex: number, colName: string) => {
-    setEditingCell({ row: rowIndex, col: colName });
+  const handleCellDoubleClick = (
+    rowIndex: number,
+    colName: string,
+    isNew = false,
+  ) => {
+    setEditingCell({ row: rowIndex, col: colName, isNew });
   };
 
   const handleCellChange = (
     rowIndex: number,
     colName: string,
     newValue: unknown,
+    isNew = false,
   ) => {
+    if (isNew) {
+      setNewRows((prev) =>
+        prev.map((r, i) =>
+          i === rowIndex ? { ...r, [colName]: newValue } : r,
+        ),
+      );
+      setEditingCell(null);
+      return;
+    }
+
     const oldValue = tableState.rows[rowIndex]?.[colName];
-    if (oldValue === newValue) {
+    const col = tableState.columns.find((c) => c.name === colName);
+
+    // Normalize for comparison if it's a date/time
+    let isDifferent = oldValue !== newValue;
+    if (col && isDateTimeValue(newValue, col.dataType)) {
+      const normOld = formatSqlDate(oldValue);
+      const normNew = formatSqlDate(newValue);
+      isDifferent = normOld !== normNew;
+    }
+
+    if (!isDifferent) {
       setEditingCell(null);
       return;
     }
@@ -267,12 +298,24 @@ export const DataGrid: React.FC = () => {
 
     // Send inserts for new rows
     for (const newRow of newRows) {
+      // Filter out columns that match their default values (literal expressions like CURRENT_TIMESTAMP)
+      const rowToInsert: Record<string, unknown> = {};
+      for (const col of tableState.columns) {
+        const value = newRow[col.name];
+        // Only include if value is different from default
+        // We use string comparison for default values as they come as strings from the DB
+        if (value !== null && String(value) === col.defaultValue) {
+          continue;
+        }
+        rowToInsert[col.name] = value;
+      }
+
       postMessage({
         type: "insertRow",
         connectionName,
         schema,
         table,
-        row: newRow,
+        row: rowToInsert,
       });
     }
 
@@ -303,7 +346,11 @@ export const DataGrid: React.FC = () => {
   const handleAddRow = () => {
     const emptyRow: Record<string, unknown> = {};
     for (const col of tableState.columns) {
-      emptyRow[col.name] = col.defaultValue ?? null;
+      if (col.defaultValue && isTimestampDefault(col.defaultValue)) {
+        emptyRow[col.name] = "$HAPPYDB_NOW$";
+      } else {
+        emptyRow[col.name] = col.defaultValue ?? null;
+      }
     }
     setNewRows((prev) => [...prev, emptyRow]);
   };
@@ -555,7 +602,6 @@ export const DataGrid: React.FC = () => {
                       }
                     />
                   </th>
-                  <th style={{ width: 48, textAlign: "center" }}>#</th>
                   {tableState.columns.map((col) => (
                     <th key={col.name} onClick={() => handleSort(col.name)}>
                       <span className="col-header">
@@ -574,6 +620,7 @@ export const DataGrid: React.FC = () => {
                       <span className="col-type">
                         {col.dataType}
                         {col.maxLength ? `(${col.maxLength})` : ""}
+                        {col.nullable ? "?" : ""}
                       </span>
                       <span className="sort-indicator">
                         {getSortIndicator(col.name)}
@@ -595,14 +642,12 @@ export const DataGrid: React.FC = () => {
                         onChange={() => toggleRowSelection(rowIndex)}
                       />
                     </td>
-                    <td className="row-number">
-                      {tableState.page * tableState.pageSize + rowIndex + 1}
-                    </td>
                     {tableState.columns.map((col) => {
                       const value = getCellValue(rowIndex, col.name);
                       const isNull = value === null || value === undefined;
                       const isModified = isCellModified(rowIndex, col.name);
                       const isEditing =
+                        !editingCell?.isNew &&
                         editingCell?.row === rowIndex &&
                         editingCell?.col === col.name;
 
@@ -652,46 +697,48 @@ export const DataGrid: React.FC = () => {
                         <Icon name="close" />
                       </button>
                     </td>
-                    <td
-                      className="row-number"
-                      style={{ color: "var(--success-color)" }}
-                    >
-                      +
-                    </td>
-                    {tableState.columns.map((col) => (
-                      <td
-                        key={col.name}
-                        className="new-row-cell editable"
-                        onDoubleClick={() => {
-                          const val = prompt(
-                            `${col.name}:`,
-                            String(newRow[col.name] ?? ""),
-                          );
-                          if (val !== null) {
-                            setNewRows((prev) =>
-                              prev.map((r, i) =>
-                                i === nri
-                                  ? { ...r, [col.name]: val || null }
-                                  : r,
-                              ),
-                            );
+                    {tableState.columns.map((col) => {
+                      const value = newRow[col.name];
+                      const isNull = value === null || value === undefined;
+                      const isEditing =
+                        editingCell?.isNew &&
+                        editingCell?.row === nri &&
+                        editingCell?.col === col.name;
+
+                      if (isEditing) {
+                        return (
+                          <td key={col.name} className="editing-cell">
+                            <CellEditor
+                              value={value}
+                              column={col}
+                              onSave={(newVal) =>
+                                handleCellChange(nri, col.name, newVal, true)
+                              }
+                              onCancel={handleCellCancel}
+                            />
+                          </td>
+                        );
+                      }
+
+                      return (
+                        <td
+                          key={col.name}
+                          className={`new-row-cell editable ${isNull ? "null-value" : ""}`}
+                          onDoubleClick={() =>
+                            handleCellDoubleClick(nri, col.name, true)
                           }
-                        }}
-                      >
-                        {newRow[col.name] === null ? (
-                          <span className="null-value">NULL</span>
-                        ) : (
-                          String(newRow[col.name] ?? "")
-                        )}
-                      </td>
-                    ))}
+                        >
+                          {isNull ? "NULL" : formatValue(value, col)}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
 
                 {tableState.rows.length === 0 && newRows.length === 0 && (
                   <tr>
                     <td
-                      colSpan={tableState.columns.length + 2}
+                      colSpan={tableState.columns.length + 1}
                       style={{
                         textAlign: "center",
                         padding: 24,
@@ -723,6 +770,7 @@ export const DataGrid: React.FC = () => {
               <option value={100}>100</option>
               <option value={250}>250</option>
               <option value={500}>500</option>
+              <option value={1000}>1000</option>
             </select>
             <span style={{ fontSize: 11, color: "var(--fg-secondary)" }}>
               rows/page
@@ -769,7 +817,17 @@ function formatValue(
   if (typeof value === "object" && value !== null) {
     return JSON.stringify(value);
   }
+
+  if (value === "$HAPPYDB_NOW$") {
+    return "[NOW]";
+  }
+
+  if (isDateTimeValue(value, col.dataType)) {
+    return formatSqlDate(value);
+  }
+
   const str = String(value);
+
   if (str.length > 200) {
     return str.substring(0, 200) + "…";
   }

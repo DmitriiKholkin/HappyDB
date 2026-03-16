@@ -301,15 +301,22 @@ export class SqliteAdapter implements IDbAdapter {
     const db = this.getDb();
     const params: unknown[] = [];
 
-    const setClauses = Object.entries(changes).map(([col, val]) => {
-      params.push(val);
-      return `"${col}" = ?`;
-    });
+    const whereClauses: string[] = [];
+    const setClauses: string[] = [];
 
-    const whereClauses = Object.entries(pk).map(([col, val]) => {
+    for (const [col, val] of Object.entries(changes)) {
+      if (val === "$HAPPYDB_NOW$") {
+        setClauses.push(`"${col}" = CURRENT_TIMESTAMP`);
+      } else {
+        setClauses.push(`"${col}" = ?`);
+        params.push(val);
+      }
+    }
+
+    for (const [col, val] of Object.entries(pk)) {
+      whereClauses.push(`"${col}" = ?`);
       params.push(val);
-      return `"${col}" = ?`;
-    });
+    }
 
     db.prepare(
       `UPDATE "${table}" SET ${setClauses.join(", ")} WHERE ${whereClauses.join(" AND ")}`,
@@ -322,14 +329,22 @@ export class SqliteAdapter implements IDbAdapter {
     row: RowChanges,
   ): Promise<void> {
     const db = this.getDb();
-    const columns = Object.keys(row)
-      .map((c) => `"${c}"`)
-      .join(", ");
-    const params = Object.values(row);
-    const placeholders = params.map(() => "?").join(", ");
+    const colList: string[] = [];
+    const valExps: string[] = [];
+    const params: unknown[] = [];
+
+    for (const [col, val] of Object.entries(row)) {
+      colList.push(`"${col}"`);
+      if (val === "$HAPPYDB_NOW$") {
+        valExps.push("CURRENT_TIMESTAMP");
+      } else {
+        valExps.push("?");
+        params.push(val);
+      }
+    }
 
     db.prepare(
-      `INSERT INTO "${table}" (${columns}) VALUES (${placeholders})`,
+      `INSERT INTO "${table}" (${colList.join(", ")}) VALUES (${valExps.join(", ")})`,
     ).run(...params);
   }
 

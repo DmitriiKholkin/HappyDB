@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { type ColumnInfo } from "../../store/useDbStore";
+import { useEffect, useRef, useState } from "react";
+import type { ColumnInfo } from "../../store/useDbStore";
+import { formatSqlDate, isDateTimeValue } from "../../utils/dateUtils";
 import { Icon } from "../common/Icon";
 
 interface CellEditorProps {
@@ -39,7 +40,7 @@ export const CellEditor: React.FC<CellEditorProps> = ({
     return (
       <TextInputEditor
         value={value}
-        type="number"
+        type="text"
         nullable={column.nullable}
         onSave={(v) => {
           if (v === null) {
@@ -63,6 +64,9 @@ export const CellEditor: React.FC<CellEditorProps> = ({
         nullable={column.nullable}
         onSave={onSave}
         onCancel={onCancel}
+        onNow={() => {
+          onSave("$HAPPYDB_NOW$");
+        }}
         placeholder="YYYY-MM-DD HH:MM:SS"
       />
     );
@@ -88,6 +92,7 @@ interface TextInputEditorProps {
   nullable: boolean;
   onSave: (val: unknown) => void;
   onCancel: () => void;
+  onNow?: () => void;
   placeholder?: string;
 }
 
@@ -97,11 +102,16 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
   nullable,
   onSave,
   onCancel,
+  onNow,
   placeholder,
 }) => {
-  const [text, setText] = useState(
-    value === null || value === undefined ? "" : String(value),
-  );
+  const [text, setText] = useState(() => {
+    if (value === "$HAPPYDB_NOW$") return "[NOW]";
+    if (isDateTimeValue(value, type === "text" ? undefined : type)) {
+      return formatSqlDate(value);
+    }
+    return value === null || value === undefined ? "" : String(value);
+  });
   const [isNull, setIsNull] = useState(value === null || value === undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,10 +121,16 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
     inputRef.current?.select();
   }, []);
 
+  const getFinalValue = () => {
+    if (isNull) return null;
+    if (text === "[NOW]") return "$HAPPYDB_NOW$";
+    return text;
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      onSave(isNull ? null : text);
+      onSave(getFinalValue());
     }
     if (e.key === "Escape") {
       e.preventDefault();
@@ -122,7 +138,7 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
     }
     if (e.key === "Tab") {
       e.preventDefault();
-      onSave(isNull ? null : text);
+      onSave(getFinalValue());
     }
   };
 
@@ -134,7 +150,7 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
     ) {
       return;
     }
-    onSave(isNull ? null : text);
+    onSave(getFinalValue());
   };
 
   return (
@@ -153,25 +169,45 @@ const TextInputEditor: React.FC<TextInputEditorProps> = ({
           setIsNull(false);
         }}
         placeholder={placeholder || (isNull ? "NULL" : "")}
-        disabled={isNull}
         className="cell-edit-input"
       />
-      {nullable && (
-        <label className="null-toggle" title="Set to NULL">
-          <input
-            type="checkbox"
-            checked={isNull}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setIsNull(checked);
-              if (!checked) {
-                setTimeout(() => inputRef.current?.focus(), 0);
-              }
+      <div className="cell-editor-footer">
+        {nullable && (
+          <label
+            className="null-toggle"
+            title="Set to NULL"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            <input
+              type="checkbox"
+              checked={isNull}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setIsNull(checked);
+                if (!checked) {
+                  setTimeout(() => inputRef.current?.focus(), 0);
+                }
+              }}
+            />
+            <span className="null-label">NULL</span>
+          </label>
+        )}
+        {onNow && (
+          <button
+            className="btn-now"
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setText("[NOW]");
+              setIsNull(false);
             }}
-          />
-          <span className="null-label">NULL</span>
-        </label>
-      )}
+            title="Set to current time"
+          >
+            NOW
+          </button>
+        )}
+      </div>
     </div>
   );
 };

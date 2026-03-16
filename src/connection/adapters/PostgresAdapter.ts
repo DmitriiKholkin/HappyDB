@@ -392,8 +392,12 @@ export class PostgresAdapter implements IDbAdapter {
     let paramIndex = 1;
 
     for (const [col, val] of Object.entries(changes)) {
-      setClauses.push(`"${col}" = $${paramIndex++}`);
-      params.push(val);
+      if (val === "$HAPPYDB_NOW$") {
+        setClauses.push(`"${col}" = CURRENT_TIMESTAMP`);
+      } else {
+        setClauses.push(`"${col}" = $${paramIndex++}`);
+        params.push(val);
+      }
     }
 
     const whereClauses: string[] = [];
@@ -413,14 +417,22 @@ export class PostgresAdapter implements IDbAdapter {
     table: string,
     row: RowChanges,
   ): Promise<void> {
-    const columns = Object.keys(row)
-      .map((c) => `"${c}"`)
-      .join(", ");
-    const params = Object.values(row);
-    const placeholders = params.map((_, i) => `$${i + 1}`).join(", ");
+    const colList: string[] = [];
+    const valExps: string[] = [];
+    const params: unknown[] = [];
+
+    for (const [col, val] of Object.entries(row)) {
+      colList.push(`"${col}"`);
+      if (val === "$HAPPYDB_NOW$") {
+        valExps.push("CURRENT_TIMESTAMP");
+      } else {
+        valExps.push(`$${params.length + 1}`);
+        params.push(val);
+      }
+    }
 
     await this.getPool().query(
-      `INSERT INTO "${schema}"."${table}" (${columns}) VALUES (${placeholders})`,
+      `INSERT INTO "${schema}"."${table}" (${colList.join(", ")}) VALUES (${valExps.join(", ")})`,
       params,
     );
   }

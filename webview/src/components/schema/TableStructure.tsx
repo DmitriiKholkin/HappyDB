@@ -135,8 +135,7 @@ export const TableStructure: React.FC = () => {
                   {columns.map((col, i) => (
                     <tr key={col.name}>
                       <td className="row-number">{i + 1}</td>
-                      <td style={{ fontWeight: col.isPrimaryKey ? 600 : 400 }}>
-                        {col.isPrimaryKey && <Icon name="key" style={{ marginRight: 4 }} />}
+                      <td style={{ fontWeight: 400 }}>
                         {col.name}
                       </td>
                       <td

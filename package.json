@@ -2,7 +2,7 @@
   "name": "happy-db",
   "displayName": "HappyDB",
   "description": "Full-featured database manager right inside VS Code",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "publisher": "DmitriiKholkin",
   "repository": {
     "type": "git",

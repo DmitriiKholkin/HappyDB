@@ -408,9 +408,13 @@ export class MssqlAdapter implements IDbAdapter {
     let i = 0;
 
     for (const [col, val] of Object.entries(changes)) {
-      const paramName = `set${i++}`;
-      setClauses.push(`[${col}] = @${paramName}`);
-      request.input(paramName, val as sql.ISqlType);
+      if (val === "$HAPPYDB_NOW$") {
+        setClauses.push(`[${col}] = GETDATE()`);
+      } else {
+        const paramName = `set${i++}`;
+        setClauses.push(`[${col}] = @${paramName}`);
+        request.input(paramName, val as sql.ISqlType);
+      }
     }
 
     const whereClauses: string[] = [];
@@ -436,10 +440,14 @@ export class MssqlAdapter implements IDbAdapter {
     let i = 0;
 
     for (const [col, val] of Object.entries(row)) {
-      const paramName = `ins${i++}`;
       columns.push(`[${col}]`);
-      values.push(`@${paramName}`);
-      request.input(paramName, val as sql.ISqlType);
+      if (val === "$HAPPYDB_NOW$") {
+        values.push("GETDATE()");
+      } else {
+        const paramName = `ins${i++}`;
+        values.push(`@${paramName}`);
+        request.input(paramName, val as sql.ISqlType);
+      }
     }
 
     await request.query(

@@ -391,8 +391,12 @@ export class MysqlAdapter implements IDbAdapter {
     const params: unknown[] = [];
 
     for (const [col, val] of Object.entries(changes)) {
-      setClauses.push(`\`${col}\` = ?`);
-      params.push(val);
+      if (val === "$HAPPYDB_NOW$") {
+        setClauses.push(`\`${col}\` = NOW()`);
+      } else {
+        setClauses.push(`\`${col}\` = ?`);
+        params.push(val);
+      }
     }
 
     const whereClauses: string[] = [];
@@ -412,14 +416,22 @@ export class MysqlAdapter implements IDbAdapter {
     table: string,
     row: RowChanges,
   ): Promise<void> {
-    const columns = Object.keys(row)
-      .map((c) => `\`${c}\``)
-      .join(", ");
-    const params = Object.values(row);
-    const placeholders = params.map(() => "?").join(", ");
+    const colList: string[] = [];
+    const valExps: string[] = [];
+    const params: unknown[] = [];
+
+    for (const [col, val] of Object.entries(row)) {
+      colList.push(`\`${col}\``);
+      if (val === "$HAPPYDB_NOW$") {
+        valExps.push("NOW()");
+      } else {
+        valExps.push("?");
+        params.push(val);
+      }
+    }
 
     await this.getPool().query(
-      `INSERT INTO \`${schema}\`.\`${table}\` (${columns}) VALUES (${placeholders})`,
+      `INSERT INTO \`${schema}\`.\`${table}\` (${colList.join(", ")}) VALUES (${valExps.join(", ")})`,
       params,
     );
   }
