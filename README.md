@@ -27,7 +27,7 @@ Manage your databases without leaving the editor — browse tables, run queries,
 
 ---
 
-# For better interaction, use my new core extension - [RapiDB](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.rapidb)
+# For better interaction, use my new core extension [RapiDB](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.rapidb)
 
 ---
 
