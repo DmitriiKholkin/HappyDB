@@ -7,7 +7,6 @@ export type DbType = "postgresql" | "mssql" | "sqlite" | "mysql";
 export interface BaseConnectionConfig {
   name: string;
   type: DbType;
-  password?: string;
 }
 
 export interface PostgresConnectionConfig extends BaseConnectionConfig {
@@ -16,6 +15,7 @@ export interface PostgresConnectionConfig extends BaseConnectionConfig {
   port: number;
   database: string;
   username: string;
+  password?: string;
   ssl: boolean;
 }
 
@@ -25,13 +25,9 @@ export interface MssqlConnectionConfig extends BaseConnectionConfig {
   port: number;
   database: string;
   username: string;
+  password?: string;
   ssl: boolean;
   trustServerCertificate: boolean;
-}
-
-export interface SqliteConnectionConfig extends BaseConnectionConfig {
-  type: "sqlite";
-  filePath: string;
 }
 
 export interface MysqlConnectionConfig extends BaseConnectionConfig {
@@ -40,14 +36,20 @@ export interface MysqlConnectionConfig extends BaseConnectionConfig {
   port: number;
   database: string;
   username: string;
+  password?: string;
   ssl: boolean;
+}
+
+export interface SqliteConnectionConfig extends BaseConnectionConfig {
+  type: "sqlite";
+  filePath: string;
 }
 
 export type ConnectionConfig =
   | PostgresConnectionConfig
   | MssqlConnectionConfig
-  | SqliteConnectionConfig
-  | MysqlConnectionConfig;
+  | MysqlConnectionConfig
+  | SqliteConnectionConfig;
 
 // ---------- Schema / Metadata types ----------
 

@@ -27,6 +27,10 @@ Manage your databases without leaving the editor — browse tables, run queries,
 
 ---
 
+# For better interaction, use my new core extension - [RapiDB](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.rapidb)
+
+---
+
 ## ✨ Features
 
 - 🔌 **Multi-database support** — PostgreSQL, MySQL, MSSQL, SQLite
@@ -45,7 +49,7 @@ Manage your databases without leaving the editor — browse tables, run queries,
 |-----------------|------------------|------------------------------------------------------|
 | PostgreSQL      | `pg`             | `host`, `port`, `database`, `username`, `ssl`        |
 | MySQL / MariaDB | `mysql2`         | `host`, `port`, `database`, `username`, `ssl`        |
-| Microsoft SQL   | `mssql`          | `host`, `port`, `database`, `username`, `encrypt`, `trustServerCertificate` |
+| Microsoft SQL   | `mssql`          | `host`, `port`, `database`, `username`, `ssl`, `trustServerCertificate` |
 | SQLite          | `better-sqlite3` | `filePath`                                           |
 
 All connections share `name`, `type` and optional `password`.
