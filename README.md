@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img src="icon.png" style="height: 1em; vertical-align: middle;"/> HappyDB
+# HappyDB
 
 **Full-featured database manager right inside VS Code**
 
@@ -27,6 +27,7 @@ Manage your databases without leaving the editor — browse tables, run queries,
 
 ---
 
+# DEPRECATED.
 # For better interaction, use my new core extension [RapiDB](https://marketplace.visualstudio.com/items?itemName=DmitriiKholkin.rapidb)
 
 ---
